@@ -8,11 +8,31 @@
 #include <dt-bindings/zmk/matrix_transform.h>
 #include <physical_layouts.dtsi>
 
+&pro_micro_i2c {
+    status = "okay";
+
+    oled_128x64: ssd1306@3c {
+        compatible = "solomon,ssd1306fb";
+        reg = <0x3c>;
+        width = <128>;
+        height = <64>;
+        segment-offset = <0>;
+        page-offset = <0>;
+        display-offset = <0>;
+        multiplex-ratio = <63>;
+        segment-remap;
+        com-invdir;
+        inversion-on;
+        prechargep = <0x22>;
+    };
+};
+
 / {
 
     chosen {
-		zmk,physical-layout = &default_layout;
-		zmk,studio-rpc-uart = &uart1;
+	zmk,physical-layout = &default_layout;
+	zmk,studio-rpc-uart = &uart1;
+        zephyr,display = &oled_128x64;
     };
 
     default_layout: default_layout {
@@ -92,29 +112,4 @@
     };
     
 
-};
-
-&pro_micro_i2c {
-    status = "okay";
-
-    oled_128x64: ssd1306@3c {
-        compatible = "solomon,ssd1306fb";
-        reg = <0x3c>;
-        width = <128>;
-        height = <64>;
-        segment-offset = <0>;
-        page-offset = <0>;
-        display-offset = <0>;
-        multiplex-ratio = <63>;
-        segment-remap;
-        com-invdir;
-        inversion-on;
-        prechargep = <0x22>;
-    };
-};
-
-/ {
-    chosen {
-        zephyr,display = &oled_128x64;
-    };
 };
