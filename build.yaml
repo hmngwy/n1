@@ -25,3 +25,5 @@ include:
   - board: nice_nano_v2
     #shield: n1_right oled_adapter_pro_micro_128x64 
     shield: n1_right 
+  - board: nice_nano_v2
+    shield: settings_reset
