@@ -31,3 +31,4 @@ include:
     #shield: n1_right oled_adapter_pro_micro_128x64 
     shield: n1_right 
     snippet: zmk-usb-logging
+    artifact-name: n1_right_DEBUG
