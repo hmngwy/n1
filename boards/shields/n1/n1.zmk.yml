@@ -1,0 +1,11 @@
+file_format: "1"
+id: n1 
+name: n2 
+type: shield
+url: https://github.com/hmngwy/n1
+requires: [nice_nano_v2]
+features:
+  - keys
+siblings:
+  - n1_left
+  - n1_right
