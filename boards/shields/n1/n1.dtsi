@@ -8,14 +8,6 @@
 #include <dt-bindings/zmk/matrix_transform.h>
 #include <physical_layouts.dtsi>
 
-&default_layout {
-    transform = <&default_transform>;
-};
-
-&6x3_layout {
-    transform = <&6x3_transform>;
-};
-
 //&n1_5x3_layout {
 //    transform = <&5x3_transform>;
 //};
