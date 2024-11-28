@@ -29,7 +29,7 @@
         page-offset = <0>;
         display-offset = <0>;
         multiplex-ratio = <63>;
-        //segment-remap;
+        segment-remap;
         com-invdir;
         //com-sequential;
         inversion-on;
