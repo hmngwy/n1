@@ -148,7 +148,7 @@
 	kscan = <&kscan0>;
 	
 		keys       //                  w   h   x    y o x y
-			= <&key_physical_attrs 100 100 (-100) 0 0 0 0>
+			= <&key_physical_attrs 100 100 -100 0 0 0 0>
 			, <&key_physical_attrs 100 100    0 0 0 0 0>
 			, <&key_physical_attrs 100 100  100 0 0 0 0>
 			, <&key_physical_attrs 100 100  200 0 0 0 0>
@@ -159,7 +159,7 @@
 			, <&key_physical_attrs 100 100  800 0 0 0 0>
 			, <&key_physical_attrs 100 100  900 0 0 0 0>
 			
-			, <&key_physical_attrs 100 100 (-100) 100 0 0 0>
+			, <&key_physical_attrs 100 100 -100 100 0 0 0>
 			, <&key_physical_attrs 100 100    0 100 0 0 0>
 			, <&key_physical_attrs 100 100  100 100 0 0 0>
 			, <&key_physical_attrs 100 100  200 100 0 0 0>
@@ -170,7 +170,7 @@
 			, <&key_physical_attrs 100 100  800 100 0 0 0>
 			, <&key_physical_attrs 100 100  900 100 0 0 0>
 			
-			, <&key_physical_attrs 100 100 (-100) 200 0 0 0>
+			, <&key_physical_attrs 100 100 -100 200 0 0 0>
 			, <&key_physical_attrs 100 100    0 200 0 0 0>
 			, <&key_physical_attrs 100 100  100 200 0 0 0>
 			, <&key_physical_attrs 100 100  200 200 0 0 0>
