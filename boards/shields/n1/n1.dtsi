@@ -8,11 +8,11 @@
 #include <dt-bindings/zmk/matrix_transform.h>
 #include <physical_layouts.dtsi>
 
-&n1_6x4_layout {
+&default_layout {
     transform = <&default_transform>;
 };
 
-&n1_6x3_layout {
+&6x3_layout {
     transform = <&6x3_transform>;
 };
 
@@ -97,7 +97,7 @@
 			;
     };
 
-    6x3_layout: default_layout {
+    6x3_layout: 6x3_layout {
 	compatible = "zmk,physical-layout";
 	display-name = "Default";
 	
