@@ -3,28 +3,23 @@
  *
  * SPDX-License-Identifier: MIT
  */
- // Needed if and only if keys property is used
 
 #include <dt-bindings/zmk/matrix_transform.h>
 #include <physical_layouts.dtsi>
-
-//&n1_5x3_layout {
-//    transform = <&5x3_transform>;
-//};
 
 / {
 
     chosen {
         zephyr,display = &oled;
-	zmk,physical-layout = &default_layout;
+	//zmk,physical-layout = &n1_6x4_layout;
 	zmk,studio-rpc-uart = &uart1;
     };
 
-    default_layout: default_layout {
+    n1_6x4_layout: n1_6x4_layout {
 	compatible = "zmk,physical-layout";
 	display-name = "Default";
 	
-	transform = <&default_transform>;
+	transform = <&n1_6x4_transform>;
 	kscan = <&kscan0>;
 	
 		keys       //                  w   h   x    y o x y
@@ -145,7 +140,7 @@
 			;
     };
 
-    default_transform: keymap_transform_0 {
+    n1_6x4_transform: keymap_transform_0 {
         compatible = "zmk,matrix-transform";
         columns = <12>;
         rows = <5>;
