@@ -30,7 +30,7 @@
         display-offset = <0>;
         multiplex-ratio = <63>;
         //segment-remap;
-        //com-invdir;
+        com-invdir;
         //com-sequential;
         inversion-on;
         prechargep = <0x22>;
