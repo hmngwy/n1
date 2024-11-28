@@ -11,13 +11,13 @@
 
     chosen {
         zephyr,display = &oled;
-	//zmk,physical-layout = &n1_6x4_layout;
+	zmk,physical-layout = &n1_6x4_layout;
 	zmk,studio-rpc-uart = &uart1;
     };
 
     n1_6x4_layout: n1_6x4_layout {
 	compatible = "zmk,physical-layout";
-	display-name = "Default";
+	display-name = "N1 6x4 Layout";
 	
 	transform = <&n1_6x4_transform>;
 	kscan = <&kscan0>;
@@ -86,7 +86,7 @@
 
     n1_6x3_layout: n1_6x3_layout {
 	compatible = "zmk,physical-layout";
-	display-name = "Default";
+	display-name = "N1 6x3 Layout";
 	
 	transform = <&n1_6x3_transform>;
 	kscan = <&kscan0>;
