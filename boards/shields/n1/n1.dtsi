@@ -89,11 +89,11 @@
 			;
     };
 
-    6x3_layout: 6x3_layout {
+    n1_6x3_layout: n1_6x3_layout {
 	compatible = "zmk,physical-layout";
 	display-name = "Default";
 	
-	transform = <&6x3_transform>;
+	transform = <&n1_6x3_transform>;
 	kscan = <&kscan0>;
 	
 		keys       //                  w   h   x    y o x y
@@ -160,7 +160,7 @@
         >;
     };
 
-    6x3_transform: keymap_transform_1 {
+    n1_6x3_transform: keymap_transform_1 {
         compatible = "zmk,matrix-transform";
         columns = <12>;
         rows = <4>;
