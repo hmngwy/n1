@@ -1,11 +1,11 @@
-config SHIELD_N1_CENTRAL_DONGLE
-    def_bool $(shields_list_contains,n1_central_dongle)
+config SHIELD_N1_TRIO_BASE_CENTRAL
+    def_bool $(shields_list_contains,n1_trio_base_central)
 
-config SHIELD_N1_LEFT_PERIPHERAL
-    def_bool $(shields_list_contains,n1_left_peripheral)
+config SHIELD_N1_TRIO_LEFT_PERIPHERAL
+    def_bool $(shields_list_contains,n1_trio_left_peripheral)
 
-config SHIELD_N1_LEFT
-    def_bool $(shields_list_contains,n1_left)
+config SHIELD_N1_DUO_LEFT_CENTRAL
+    def_bool $(shields_list_contains,n1_duo_left_central)
 
-config SHIELD_N1_RIGHT
-    def_bool $(shields_list_contains,n1_right)
+config SHIELD_N1_ANY_RIGHT_PERIPHERAL
+    def_bool $(shields_list_contains,n1_any_right_peripheral)
