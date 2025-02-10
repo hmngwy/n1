@@ -9,7 +9,6 @@
 #define NAV 2
 #define FUN 3
 #define MET 4
-#define CLM 4
 
 &lt {
   tapping-term-ms = <150>;
