@@ -49,7 +49,7 @@
     symbols {
       bindings = <
         &trans         &trans         &trans       &trans         &trans           &trans               &trans         &trans         &trans        &trans       &trans        &trans         
-        &kp X          &kp PRCNT      &kp CARET    &kp GRAVE      &kp TILDE        &none                &kp none       &kp LT         &kp GT        &kp LBKT     &kp RBKT      &kp X          
+        &kp X          &kp PRCNT      &kp CARET    &kp GRAVE      &kp TILDE        &none                &none       &kp LT         &kp GT        &kp LBKT     &kp RBKT      &kp X          
         &kp X          &kp ESC        &kp AT       &kp HASH       &kp QMARK        &kp EXCL             &kp EQUAL      &kp LPAR       &kp RPAR      &kp LBRC     &kp RBRC      &kp X     
         &kp X          &none          &kp AMPS     &kp DLLR       &kp SEMI         &kp PIPE             &kp UNDER      &kp COLN       &none         &none        &kp BSLH      &kp X
                                                    &kp ESC        &trans           &trans               &kp CAPS       &kp DEL        &trans
