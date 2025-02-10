@@ -42,7 +42,7 @@
         &kp X          &kp Q          &kp W        &kp F          &kp P            &kp B                &kp J          &kp L           &kp U         &kp Y        &kp APOS      &kp X          
         &kp X          &hm LGUI A     &hm LALT R   &hm LCTRL S    &hm LSHIFT T     &kp G                &kp M          &hm RSHIFT N    &hm RCTRL E   &hm RALT I   &hm RGUI O    &kp X     
         &kp X          &kp Z          &kp X        &kp C          &kp D            &kp V                &kp K          &kp H           &kp COMMA     &kp DOT      &kp FSLH      &kp X
-                                                   &kp ESC        &lt SYM TAB      &lt META SPACE       &lt FUN RET    &lt NAV BSPC    &kp DEL
+                                                   &kp ESC        &lt SYM TAB      &lt MET SPACE        &lt FUN RET    &lt NAV BSPC    &kp DEL
       >;
     };
 
