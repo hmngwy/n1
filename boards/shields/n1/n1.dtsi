@@ -144,7 +144,7 @@
 	compatible = "zmk,physical-layout";
 	display-name = "N1 5x3 Layout";
 	
-	transform = <&n1_5x3_transform>;
+	transform = <&n1_6x3_transform>;
 	kscan = <&kscan0>;
 	
 		keys       //                  w   h   x    y o x y
