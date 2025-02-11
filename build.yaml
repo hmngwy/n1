@@ -21,6 +21,7 @@ include:
   # reset
   - board: nice_nano_v2
     shield: settings_reset
+    artifact-name: _reset
 
   # duo split
   - board: nice_nano_v2
