@@ -1,4 +1,7 @@
 #include "n1.dtsi" 
+&n1_6x4_transform {
+	col-offset = <6>;
+};
 &n1_6x3_transform {
 	col-offset = <6>;
 };
