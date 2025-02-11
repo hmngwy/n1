@@ -15,6 +15,7 @@
 	zmk,studio-rpc-uart = &uart1;
     };
 
+/*
     n1_6x4_layout: n1_6x4_layout {
 	compatible = "zmk,physical-layout";
 	display-name = "6x4 Layout";
@@ -87,6 +88,7 @@
 			, <&key_physical_attrs 100 100 1000  400 0 0 0>
 			;
     };
+*/
 
     n1_6x3_layout: n1_6x3_layout {
 	compatible = "zmk,physical-layout";
@@ -199,7 +201,7 @@
 			, <&key_physical_attrs 100 100 1000  300 0 0 0>
 			;
     };
-
+/*
     n1_6x4_transform: keymap_transform_0 {
         compatible = "zmk,matrix-transform";
         columns = <12>;
@@ -214,7 +216,7 @@
 
         >;
     };
-
+*/
     n1_6x3_transform: keymap_transform_1 {
         compatible = "zmk,matrix-transform";
         columns = <12>;
@@ -246,7 +248,7 @@
     layouts_n1_position_map {
         compatible = "zmk,physical-layout-position-map";
         complete;
-
+/*
         n1_6x4_posmap: n1_6x4_posmap {
             physical-layout = <&n1_6x4_layout>;
             positions
@@ -256,6 +258,7 @@
                 , <36 37 38 39 40 41   42 43 44 45 46 47>
                 , <         48 49 50   51 52 53         >;
         };
+*/
         n1_6x3_posmap: n1_6x3_posmap {
             physical-layout = <&n1_6x3_layout>;
             positions
