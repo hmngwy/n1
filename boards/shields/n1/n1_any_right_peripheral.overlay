@@ -1,4 +1,4 @@
-#include "n1.dtsi" // Notice that the main dtsi files are included in the overlay.
+#include "n1.dtsi" 
 &n1_6x4_transform {
 	col-offset = <6>;
 };
