@@ -245,7 +245,7 @@
 
     layouts_n1_position_map {
         compatible = "zmk,physical-layout-position-map";
-        complete;
+        //complete;
 
         n1_6x4_posmap: n1_6x4_posmap {
             physical-layout = <&n1_6x4_layout>;
