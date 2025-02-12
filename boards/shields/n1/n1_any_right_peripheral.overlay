@@ -6,7 +6,7 @@
 	col-offset = <6>;
 };
 &n1_5x3_transform {
-	col-offset = <5>;
+	col-offset = <6>;
 };
 &kscan0 {
     col-gpios
