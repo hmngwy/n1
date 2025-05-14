@@ -37,56 +37,67 @@
     compatible = "zmk,keymap";
 
     default_layer {
-      display-name = "base";
+      display-name = "alpha";
       bindings = <
-        &kp GRAVE      &kp N1         &kp N2       &kp N3         &kp N4           &kp N5               &kp N6         &kp N7          &kp N8        &kp N9       &kp N0        &kp BSPC         
-        &kp X          &kp Q          &kp W        &kp F          &kp P            &kp B                &kp J          &kp L           &kp U         &kp Y        &kp APOS      &kp X          
-        &kp X          &hm LGUI A     &hm LALT R   &hm LCTRL S    &hm LSHIFT T     &kp G                &kp M          &hm RSHIFT N    &hm RCTRL E   &hm RALT I   &hm RGUI O    &kp X     
-        &kp X          &kp Z          &kp X        &kp C          &kp D            &kp V                &kp K          &kp H           &kp COMMA     &kp DOT      &kp FSLH      &kp X
-                                                   &kp ESC        &lt SYM TAB      &lt MET SPACE        &lt FUN RET    &lt NAV BSPC    &kp DEL
+        &kp X          &kp X          &kp X        &kp X          &kp X            &kp X                &kp X           &kp X           &kp X         &kp X        &kp X          &kp X         
+        &kp X          &kp Q          &kp W        &kp E          &kp R            &kp T                &kp Y           &kp U           &kp I         &kp O        &kp P          &kp X          
+        &kp X          &kp A          &kp S        &kp D          &kp F            &kp G                &kp H           &kp J           &kp K         &kp L        &hm LCTRL RET  &kp X     
+        &kp X          &kp Z          &kp X        &kp C          &kp V            &kp B                &kp N           &kp M           &kp COMMA     &kp DOT      &hm LALT APOS  &kp X
+                                                   &mt LGUI ESC   &lt SYM TAB      &hm LSHFT SPACE      &lt FUN BSPC    &lt NAV RET     &lt META DEL
       >;
     };
 
+#    default_layer {
+#      display-name = "alpha";
+#      bindings = <
+#        &kp GRAVE      &kp N1         &kp N2       &kp N3         &kp N4           &kp N5               &kp N6         &kp N7          &kp N8        &kp N9       &kp N0        &kp BSPC         
+#        &kp X          &kp Q          &kp W        &kp F          &kp P            &kp B                &kp J          &kp L           &kp U         &kp Y        &kp APOS      &kp X          
+#        &kp X          &hm LGUI A     &hm LALT R   &hm LCTRL S    &hm LSHIFT T     &kp G                &kp M          &hm RSHIFT N    &hm RCTRL E   &hm RALT I   &hm RGUI O    &kp X     
+#        &kp X          &kp Z          &kp X        &kp C          &kp D            &kp V                &kp K          &kp H           &kp COMMA     &kp DOT      &kp FSLH      &kp X
+#                                                   &kp ESC        &lt SYM TAB      &lt MET SPACE        &lt FUN RET    &lt NAV BSPC    &kp DEL
+#      >;
+#    };
+
     symbols {
-      display-name = "symbols";
+      display-name = "sym";
       bindings = <
-        &trans         &trans         &trans       &trans         &trans           &trans               &trans         &trans         &trans        &trans       &trans        &trans         
-        &kp X          &kp PRCNT      &kp CARET    &kp GRAVE      &kp TILDE        &none                &none          &kp LT         &kp GT        &kp LBKT     &kp RBKT      &kp X          
-        &kp X          &kp ESC        &kp AT       &kp HASH       &kp QMARK        &kp EXCL             &kp EQUAL      &kp LPAR       &kp RPAR      &kp LBRC     &kp RBRC      &kp X     
-        &kp X          &none          &kp AMPS     &kp DLLR       &kp SEMI         &kp PIPE             &kp UNDER      &kp COLN       &none         &none        &kp BSLH      &kp X
-                                                   &kp ESC        &none            &trans               &kp CAPS       &kp DEL        &trans
+        &trans         &trans         &trans       &trans         &trans           &trans               &trans         &trans         &trans        &trans       &trans       &trans         
+        &trans         &kp PRCNT      &kp CARET    &kp GRAVE      &kp TILDE        &none                &none          &kp LT         &kp GT        &kp LBKT     &kp RBKT     &trans          
+        &trans         &kp ESC        &kp AT       &kp HASH       &kp QMARK        &kp EXCL             &kp EQUAL      &kp LPAR       &kp RPAR      &kp LBRC     &kp RBRC     &trans     
+        &trans         &none          &kp AMPS     &kp DLLR       &kp SEMI         &kp PIPE             &kp UNDER      &kp COLN       &kp FSLH      &kp BSLH     &trans       &trans
+                                                   &trans         &none            &trans               &trans         &trans         &trans
       >;
     };
 
     navigation {
-      display-name = "navigation";
+      display-name = "nav";
       bindings = <
         &trans         &trans         &trans       &trans         &trans           &trans               &trans         &trans         &trans        &trans       &trans        &trans    
-        &kp X          &kp PRCNT      &kp KP_N7    &kp KP_N8      &kp KP_N9        &kp KP_PLUS          &kp PG_UP      &kp HOME       &kp UP        &kp END      &kp PSCRN     &kp X          
-        &kp X          &kp KP_DOT     &kp KP_N4    &kp KP_N5      &kp KP_N6        &kp KP_MINUS         &kp PG_DN      &kp LEFT       &kp DOWN      &kp RIGHT    &kp INS       &kp X     
-        &kp X          &kp KP_COMMA   &kp KP_N1    &kp KP_N2      &kp KP_N3        &kp KP_MULTIPLY      &none          &kp ASTRK      &kp FSLH      &kp PLUS     &kp MINUS     &kp X
+        &trans         &kp PRCNT      &kp KP_N7    &kp KP_N8      &kp KP_N9        &kp KP_PLUS          &kp PG_UP      &kp HOME       &kp UP        &kp END      &none         &trans          
+        &trans         &kp KP_DOT     &kp KP_N4    &kp KP_N5      &kp KP_N6        &kp KP_MINUS         &kp PG_DN      &kp LEFT       &kp DOWN      &kp RIGHT    &none         &trans     
+        &trans         &kp KP_COMMA   &kp KP_N1    &kp KP_N2      &kp KP_N3        &kp KP_MULTIPLY      &none          &kp ASTRK      &kp FSLH      &kp PLUS     &kp MINUS     &trans
                                                    &kp KP_EQUAL   &kp KP_N0        &kp KP_DIVIDE        &trans         &none          &trans
       >;
     };
 
     function {
-      display-name = "function";
+      display-name = "fn";
       bindings = <
         &trans         &trans         &trans       &trans         &trans           &trans               &trans         &trans         &trans        &trans       &trans        &trans
-        &kp X          &kp C_BRI_UP   &kp F7       &kp F8         &kp F9           &kp F10              &trans         &trans         &trans        &trans       &trans        &kp X          
-        &kp X          &kp C_BRI_DN   &kp F4       &kp F5         &kp F6           &kp F11              &trans         &kp LNLCK      &kp LSLCK     &trans       &trans        &kp X     
-        &kp X          &none          &kp F1       &kp F2         &kp F3           &kp F12              &kp C_VOL_UP   &kp C_VOL_DN   &kp C_PP      &kp C_NEXT   &kp C_PREV    &kp X
+        &trans         &kp C_BRI_UP   &kp F7       &kp F8         &kp F9           &kp F10              &none          &none          &none         &none        &none         &trans         
+        &trans         &kp C_BRI_DN   &kp F4       &kp F5         &kp F6           &kp F11              &kp CAPS       &kp LNLCK      &kp LSLCK     &kp PSCRN    &kp INS       &trans   
+        &trans         &none          &kp F1       &kp F2         &kp F3           &kp F12              &kp C_VOL_UP   &kp C_VOL_DN   &kp C_PP      &kp C_NEXT   &kp C_PREV    &trans
                                                    &kp ESC        &trans           &trans               &none          &trans         &trans
       >;
     };
 
     meta {
-      display-name = "meta";
+      display-name = "zmk";
       bindings = <
         &trans         &trans         &trans       &trans         &trans           &trans               &trans            &trans         &trans        &trans       &trans        &trans  
-        &kp X          &soft_off      &out OUT_TOG &none          &none            &bt BT_CLR           &ext_power EP_TOG &none          &none         &none        &soft_off     &kp X          
-        &kp X          &bt BT_SEL 0   &bt BT_SEL 1 &bt BT_SEL 2   &bt BT_SEL 3     &bt BT_SEL 4         &none             &none          &none         &none        &none         &kp X     
-        &kp X          &none          &none        &bootloader    &sys_reset       &none                &none             &sys_reset     &bootloader   &none        &none    &kp X
+        &trans         &soft_off      &out OUT_TOG &none          &none            &bt BT_CLR           &ext_power EP_TOG &none          &none         &none        &soft_off     &trans         
+        &trans         &bt BT_SEL 0   &bt BT_SEL 1 &bt BT_SEL 2   &bt BT_SEL 3     &bt BT_SEL 4         &none             &none          &none         &none        &none         &trans     
+        &trans         &none          &none        &bootloader    &sys_reset       &none                &none             &sys_reset     &bootloader   &none        &none         &trans
                                                    &kp ESC        &trans           &none                &trans            &trans         &trans
 
       >;
