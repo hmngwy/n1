@@ -55,7 +55,7 @@
         &trans      &kp Q          &kp W        &kp F          &kp P            &kp B                &kp J          &kp L           &kp U         &kp Y        &htt LALT APOS  &trans         
         &trans      &kp A          &kp R        &kp S          &kp T            &kp G                &kp M          &kp N           &kp E         &kp I        &kp O           &trans    
         &trans      &kp Z          &kp X        &kp C          &kp D            &kp V                &kp K          &kp H           &kp COMMA     &kp DOT      &htt LCTRL RET  &trans
-                                                &mt LGUI ESC   &lt SYM TAB      &htt LSHFT SPACE     &lt FUN BSPC   &lt NAV RET     &lt META DEL
+                                                &trans         &trans           &trans               &trans         &trans          &trans     
       >;
     };
 
