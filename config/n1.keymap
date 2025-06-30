@@ -6,10 +6,11 @@
 
 #define QWE 0
 #define COL 1
-#define SYM 2
-#define NAV 3
-#define FUN 4
-#define MET 5
+#define DVO 2
+#define SYM 3
+#define NAV 4
+#define FUN 5
+#define MET 6
 
 &lt {
   tapping-term-ms = <150>;
@@ -44,12 +45,12 @@
         &kp TAB        &hm RALT Q      &kp W        &kp E          &kp R            &kp T                &kp Y           &kp U           &kp I         &kp O        &kp P           &kp RSHFT          
         &kp LALT       &kp A           &kp S        &kp D          &kp F            &kp G                &kp H           &kp J           &kp K         &kp L        &hm RALT RET    &kp RALT     
         &kp LCTRL      &hm RCTRL Z     &kp X        &kp C          &kp V            &kp B                &kp N           &kp M           &kp COMMA     &kp DOT      &hm RCTRL APOS  &kp RCTRL
-                                                   &mt LGUI ESC   &lt SYM TAB      &hm LSHFT SPACE     &lt FUN RET     &lt NAV BSPC     &lt MET DEL
+                                                    &mt LGUI ESC   &lt SYM TAB      &hm LSHFT SPACE      &lt FUN RET     &lt NAV BSPC    &lt MET DEL
       >;
     };
 
     colemak_layer {
-      display-name = "colem";
+      display-name = "colemak";
       bindings = <
         &trans      &trans         &trans       &trans         &trans           &trans               &trans         &trans          &trans        &trans       &trans          &trans         
         &trans      &hm RALT Q     &kp W        &kp F          &kp P            &kp B                &kp J          &kp L           &kp U         &kp Y        &hm RALT APOS   &trans         
@@ -59,8 +60,19 @@
       >;
     };
 
+    dvorak_layer {
+      display-name = "dvorak";
+      bindings = <
+        &trans      &trans         &trans       &trans         &trans           &trans               &trans         &trans          &trans        &trans       &trans          &trans         
+        &trans      &hm RALT APOS  &kp COMMA    &kp DOT        &kp P            &kp Y                &kp F          &kp G           &kp C         &kp R        &hm RALT L      &trans         
+        &trans      &kp A          &kp O        &kp E          &kp U            &kp I                &kp D          &kp H           &kp T         &kp N        &kp S           &trans    
+        &trans      &hm RCTRL COLN &kp Q        &kp J          &kp K            &kp X                &kp B          &kp M           &kp W         &kp V        &hm RCTRL Z     &trans
+                                                &trans         &trans           &trans               &trans         &trans          &trans     
+      >;
+    };
+
     symbols {
-      display-name = "sym";
+      display-name = "symbols";
       bindings = <
         &trans         &trans         &trans       &trans         &trans           &trans               &trans         &trans         &trans        &trans       &trans       &trans         
         &trans         &kp PRCNT      &kp CARET    &kp GRAVE      &kp TILDE        &none                &none          &kp LT         &kp GT        &kp LBKT     &kp RBKT     &trans          
@@ -71,7 +83,7 @@
     };
 
     navigation {
-      display-name = "nav";
+      display-name = "navigate";
       bindings = <
         &trans         &trans         &trans       &trans         &trans           &trans               &trans         &trans         &trans        &trans       &trans        &trans    
         &trans         &kp PRCNT      &kp KP_N7    &kp KP_N8      &kp KP_N9        &kp KP_PLUS          &kp PG_UP      &kp HOME       &kp UP        &kp END      &none         &trans          
@@ -82,7 +94,7 @@
     };
 
     function {
-      display-name = "fn";
+      display-name = "function";
       bindings = <
         &trans         &trans         &trans       &trans         &trans           &trans               &trans         &trans         &trans        &trans       &trans        &trans
         &trans         &kp C_BRI_UP   &kp F7       &kp F8         &kp F9           &kp F10              &none          &none          &none         &none        &none         &trans         
@@ -99,7 +111,7 @@
         &trans         &soft_off      &out OUT_TOG &none          &none            &bt BT_CLR           &ext_power EP_TOG &none          &none         &none        &soft_off     &trans         
         &trans         &bt BT_SEL 0   &bt BT_SEL 1 &bt BT_SEL 2   &bt BT_SEL 3     &bt BT_SEL 4         &none             &none          &none         &none        &none         &trans     
         &trans         &none          &none        &bootloader    &sys_reset       &none                &none             &sys_reset     &bootloader   &none        &none         &trans
-                                                   &studio_unlock &trans           &tog 0               &trans            &trans         &none
+                                                   &studio_unlock &tog 1           &tog 0               &trans            &trans         &none
 
       >;
     };
