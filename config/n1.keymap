@@ -121,7 +121,7 @@
       display-name = "zmk";
       bindings = <
         &trans         &trans         &trans       &trans         &trans           &trans               &trans            &trans         &trans        &trans       &trans        &trans  
-        &trans         &soft_off      &out OUT_USB &out OUT_BLE   &none            &bt BT_CLR           &ext_power EP_TOG &trans         &rgb_ug RGB_TOG         &none        &soft_off     &trans         
+        &trans         &soft_off      &out OUT_USB &out OUT_BLE   &none            &bt BT_CLR           &ext_power EP_TOG &trans         &trans        &none        &soft_off     &trans         
         &trans         &bt BT_SEL 0   &bt BT_SEL 1 &bt BT_SEL 2   &bt BT_SEL 3     &bt BT_SEL 4         &none             &none          &none         &none        &none         &trans     
         &trans         &studio_unlock &none        &bootloader    &sys_reset       &none                &none             &sys_reset     &bootloader   &none        &none         &trans
                                                    &tog 6         &tog 1           &tog 0               &trans            &trans         &none
