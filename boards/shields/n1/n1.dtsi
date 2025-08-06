@@ -13,6 +13,7 @@
         zephyr,display = &oled;
 	zmk,physical-layout = &n1_6x4_layout;
 	zmk,studio-rpc-uart = &uart1;
+        zmk,underglow = &led_strip;
     };
 
     n1_6x4_layout: n1_6x4_layout {

@@ -22,6 +22,10 @@
     hold-time-ms = <2000>; 
 };
 
+&led_strip {
+    chain-length = <21>;
+};
+
 / {
 
   behaviors {
