@@ -17,7 +17,7 @@
 
     n1_6x4_layout: n1_6x4_layout {
 	compatible = "zmk,physical-layout";
-	display-name = "6x4 Layout";
+	display-name = "BF3 54-key Layout";
 	
 	transform = <&n1_6x4_transform>;
 	kscan = <&kscan0>;
@@ -90,7 +90,7 @@
 
     n1_6x3_layout: n1_6x3_layout {
 	compatible = "zmk,physical-layout";
-	display-name = "6x3 Layout";
+	display-name = "BF2 42-key Layout";
 	
 	transform = <&n1_6x3_transform>;
 	kscan = <&kscan0>;
@@ -149,7 +149,7 @@
 
     n1_5x3_layout: n1_5x3_layout {
 	compatible = "zmk,physical-layout";
-	display-name = "5x3 Layout";
+	display-name = "BF1 36-key Layout";
 	
 	transform = <&n1_5x3_transform>;
 	kscan = <&kscan0>;
