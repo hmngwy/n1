@@ -227,7 +227,7 @@
 				RC(0,3) RC(0,4) RC(0,5)     RC(0,6) RC(0,7) RC(0,8)
 
         >;
-    }keymap_transform_0;
+    };
 
     n1_5x3_tf: kmtf_2 {
         compatible = "zmk,matrix-transform";
