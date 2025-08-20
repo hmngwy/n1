@@ -25,7 +25,7 @@
 / {
 
   behaviors {
-    hm: hold_tap_tuned {
+    hm: htt {
       compatible = "zmk,behavior-hold-tap";
       label = "HOLD_TAP_TUNED";
       #binding-cells = <2>;
