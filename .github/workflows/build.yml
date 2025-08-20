@@ -3,3 +3,93 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   build:
     uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
+
+  # ------------------------------------------------------------
+  # PACKAGE: one bundle per (layout × split)
+  # Each tar includes central + peripherals (+ reset)
+  # Right side is the shared artifact: any_right_peripheral
+  # ------------------------------------------------------------
+  package-bundles:
+    runs-on: ubuntu-latest
+    needs: [build]
+    strategy:
+      fail-fast: false
+      matrix:
+        layout: [qwerty, colemak, dvorak]
+        split: [duo, trio]
+
+    steps:
+      - name: Compute artifact names for this combo
+        id: names
+        shell: bash
+        run: |
+          set -euo pipefail
+          L="${{ matrix.layout }}"
+          S="${{ matrix.split }}"
+          echo "reset=_reset" >> "$GITHUB_OUTPUT"
+          echo "right=any_right_peripheral" >> "$GITHUB_OUTPUT"
+          if [[ "$S" == "duo" ]]; then
+            echo "central=${L}_duo_split_left" >> "$GITHUB_OUTPUT"
+            echo "left=" >> "$GITHUB_OUTPUT"
+          else
+            echo "central=${L}_trio_split_central" >> "$GITHUB_OUTPUT"
+            echo "left=${L}_trio_split_left"     >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download central
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.names.outputs.central }}
+          path: dl/central
+
+      - name: Download left (trio only)
+        if: ${{ steps.names.outputs.left != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.names.outputs.left }}
+          path: dl/left
+
+      - name: Download right (shared)
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.names.outputs.right }}
+          path: dl/right
+
+      - name: Download reset (utility)
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.names.outputs.reset }}
+          path: dl/reset
+
+      - name: Extract and combine into one tar
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bundle/central bundle/left bundle/right bundle/reset
+          for role in central left right reset; do
+            [[ -d "dl/$role" ]] || continue
+            shopt -s nullglob
+            for t in dl/$role/*.tar.gz; do
+              tar -xzf "$t" -C "bundle/$role"
+            done
+          done
+
+          cat > bundle/README.txt <<EOF
+Bundle: ${{ matrix.layout }} ${{ matrix.split }}
+Contents:
+- central/: firmware for central controller
+- left/:    (trio only) left peripheral firmware
+- right/:   shared right peripheral firmware
+- reset/:   settings_reset UF2
+EOF
+
+          OUT="${{ matrix.layout }}_${{ matrix.split }}.tar.gz"
+          tar -czf "$OUT" -C bundle .
+          echo "OUT=$OUT" >> "$GITHUB_ENV"
+
+      - name: Upload combined bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.layout }}_${{ matrix.split }}
+          path: ${{ env.OUT }}
+
