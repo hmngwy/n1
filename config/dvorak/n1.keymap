@@ -4,14 +4,13 @@
 #include <dt-bindings/zmk/ext_power.h>
 #include <dt-bindings/zmk/outputs.h>
 
-#define QWE 0
-#define COL 1
-#define DVO 2
-#define SYM 3
-#define NAV 4
-#define FUN 5
-#define TST 6
-#define MET 7
+#define DVO 0
+#define QWE 1
+#define SYM 2
+#define NAV 3
+#define FUN 4
+#define TST 5
+#define MET 6
 
 &lt {
   tapping-term-ms = <150>;
@@ -39,36 +38,25 @@
   keymap {
     compatible = "zmk,keymap";
 
-    qwerty_layer {
-      display-name = "qwerty";
-      bindings = <
-        &kp ESC        &kp N1          &kp N2       &kp N3         &kp N4           &kp N5               &kp N6          &kp N7          &kp N8        &kp N9       &kp N0          &kp BSPC         
-        &kp TAB        &hm RALT Q      &kp W        &kp E          &kp R            &kp T                &kp Y           &kp U           &kp I         &kp O        &kp P           &kp RSHFT          
-        &kp LALT       &kp A           &kp S        &kp D          &kp F            &kp G                &kp H           &kp J           &kp K         &kp L        &hm RALT RET    &kp RALT     
-        &kp LCTRL      &hm RCTRL Z     &kp X        &kp C          &kp V            &kp B                &kp N           &kp M           &kp COMMA     &kp DOT      &hm RCTRL APOS  &kp RCTRL
-                                                    &mt LGUI ESC   &lt SYM TAB      &hm LSHFT SPACE      &lt FUN RET     &lt NAV BSPC    &lt MET DEL
-      >;
-    };
-
-    colemak_layer {
-      display-name = "colemak";
-      bindings = <
-        &trans      &trans         &trans       &trans         &trans           &trans               &trans         &trans          &trans        &trans       &trans          &trans         
-        &trans      &hm RALT Q     &kp W        &kp F          &kp P            &kp B                &kp J          &kp L           &kp U         &kp Y        &hm RALT APOS   &trans         
-        &trans      &kp A          &kp R        &kp S          &kp T            &kp G                &kp M          &kp N           &kp E         &kp I        &kp O           &trans    
-        &trans      &hm RCTRL Z    &kp X        &kp C          &kp D            &kp V                &kp K          &kp H           &kp COMMA     &kp DOT      &hm RCTRL RET   &trans
-                                                &trans         &trans           &trans               &trans         &trans          &trans     
-      >;
-    };
-
     dvorak_layer {
       display-name = "dvorak";
       bindings = <
-        &trans      &trans         &trans       &trans         &trans           &trans               &trans         &trans          &trans        &trans       &trans          &trans         
-        &trans      &hm RALT APOS  &kp COMMA    &kp DOT        &kp P            &kp Y                &kp F          &kp G           &kp C         &kp R        &hm RALT L      &trans         
-        &trans      &kp A          &kp O        &kp E          &kp U            &kp I                &kp D          &kp H           &kp T         &kp N        &kp S           &trans    
-        &trans      &hm RCTRL COLN &kp Q        &kp J          &kp K            &kp X                &kp B          &kp M           &kp W         &kp V        &hm RCTRL Z     &trans
+        &kp ESC     &kp N1         &kp N2       &kp N3         &kp N4           &kp N5               &kp N6         &kp N7          &kp N8        &kp N9       &kp N0          &kp BSPC         
+        &kp TAB     &hm RALT APOS  &kp COMMA    &kp DOT        &kp P            &kp Y                &kp F          &kp G           &kp C         &kp R        &hm RALT L      &kp RSHFT         
+        &kp LALT    &kp A          &kp O        &kp E          &kp U            &kp I                &kp D          &kp H           &kp T         &kp N        &kp S           &kp RALT     
+        &kp LCTRL   &hm RCTRL COLN &kp Q        &kp J          &kp K            &kp X                &kp B          &kp M           &kp W         &kp V        &hm RCTRL Z     &kp RCTRL
                                                 &trans         &trans           &trans               &trans         &trans          &trans     
+      >;
+    };
+
+    qwerty_layer {
+      display-name = "qwerty";
+      bindings = <
+        &trans       &trans          &trans       &trans         &trans           &trans               &trans          &trans          &trans        &trans       &trans          &trans         
+        &trans       &hm RALT Q      &kp W        &kp E          &kp R            &kp T                &kp Y           &kp U           &kp I         &kp O        &kp P           &trans          
+        &trans       &kp A           &kp S        &kp D          &kp F            &kp G                &kp H           &kp J           &kp K         &kp L        &hm RALT RET    &trans    
+        &trans       &hm RCTRL Z     &kp X        &kp C          &kp V            &kp B                &kp N           &kp M           &kp COMMA     &kp DOT      &hm RCTRL APOS  &trans
+                                                  &mt LGUI ESC   &lt SYM TAB      &hm LSHFT SPACE      &lt FUN RET     &lt NAV BSPC    &lt MET DEL
       >;
     };
 
@@ -124,7 +112,7 @@
         &trans         &soft_off      &out OUT_USB &out OUT_BLE   &none            &bt BT_CLR           &ext_power EP_TOG &trans         &trans        &none        &soft_off     &trans         
         &trans         &bt BT_SEL 0   &bt BT_SEL 1 &bt BT_SEL 2   &bt BT_SEL 3     &bt BT_SEL 4         &none             &none          &none         &none        &none         &trans     
         &trans         &studio_unlock &none        &bootloader    &sys_reset       &none                &none             &sys_reset     &bootloader   &none        &none         &trans
-                                                   &tog 6         &tog 1           &tog 0               &trans            &trans         &none
+                                                   &tog 5         &tog 1           &tog 0               &trans            &trans         &none
 
       >;
     };
