@@ -6,11 +6,6 @@ if SHIELD_N1_TRIO_BASE_CENTRAL || SHIELD_N1_DUO_LEFT_CENTRAL
 config ZMK_KEYBOARD_NAME
     default "n1"
 
-# Allow selecting layout via -DCONFIG_KEYMAP_LAYOUT="qwerty" (default qwerty)
-config KEYMAP_LAYOUT
-    string "Keymap layout"
-    default "qwerty"
-
 # Point ZMK to the keymap file based on the layout above
 config ZMK_KEYMAP
     string
@@ -20,10 +15,15 @@ config ZMK_SPLIT_ROLE_CENTRAL
     bool
     default y
 
-# Raise Zephyr device name limit only for centrals (prevents overflow on long DT paths)
-config DEVICE_MAX_NAME_LEN
-    int
-    default 128
+# # Allow selecting layout via -DCONFIG_KEYMAP_LAYOUT="qwerty" (default qwerty)
+# config KEYMAP_LAYOUT
+#     string "Keymap layout"
+#     default "qwerty"
+# 
+# # Raise Zephyr device name limit only for centrals (prevents overflow on long DT paths)
+# config DEVICE_MAX_NAME_LEN
+#     int
+#     default 128
 
 endif # central
 
