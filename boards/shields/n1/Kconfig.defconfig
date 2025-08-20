@@ -1,10 +1,10 @@
 # -------------------------
 # Central (Duo or Trio base)
 # -------------------------
-if SHIELD_BASEFORM_TRIO_BASE_CENTRAL || SHIELD_BASEFORM_DUO_LEFT_CENTRAL
+if SHIELD_N1_TRIO_BASE_CENTRAL || SHIELD_N1_DUO_LEFT_CENTRAL
 
 config ZMK_KEYBOARD_NAME
-    default "baseform"
+    default "n1"
 
 # Allow selecting layout via -DCONFIG_KEYMAP_LAYOUT="qwerty" (default qwerty)
 config KEYMAP_LAYOUT
@@ -14,7 +14,7 @@ config KEYMAP_LAYOUT
 # Point ZMK to the keymap file based on the layout above
 config ZMK_KEYMAP
     string
-    default "config/$(KEYMAP_LAYOUT)/baseform.keymap"
+    default "config/$(KEYMAP_LAYOUT)/n1.keymap"
 
 config ZMK_SPLIT_ROLE_CENTRAL
     bool
@@ -29,8 +29,8 @@ endif # central
 # -------------------------
 # Split (all participating halves)
 # -------------------------
-if SHIELD_BASEFORM_TRIO_BASE_CENTRAL || SHIELD_BASEFORM_TRIO_LEFT_PERIPHERAL || \
-   SHIELD_BASEFORM_DUO_LEFT_CENTRAL  || SHIELD_BASEFORM_ANY_RIGHT_PERIPHERAL
+if SHIELD_N1_TRIO_BASE_CENTRAL || SHIELD_N1_TRIO_LEFT_PERIPHERAL || \
+   SHIELD_N1_DUO_LEFT_CENTRAL  || SHIELD_N1_ANY_RIGHT_PERIPHERAL
 
 config ZMK_SPLIT
     default y
