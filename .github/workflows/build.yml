@@ -11,12 +11,12 @@ jobs:
   # ------------------------------------------------------------
   package-bundles:
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [build]     # <-- keep in sync with your build job name
     strategy:
       fail-fast: false
       matrix:
         layout: [qwerty, colemak, dvorak]
-        split: [duo, trio]
+        split:  [duo, trio]
 
     steps:
       - name: Compute artifact names for this combo
@@ -36,6 +36,7 @@ jobs:
             echo "left=${L}_trio_split_left"     >> "$GITHUB_OUTPUT"
           fi
 
+      # ---- Download artifacts produced by your build matrix ----
       - name: Download central
         uses: actions/download-artifact@v4
         with:
@@ -61,6 +62,7 @@ jobs:
           name: ${{ steps.names.outputs.reset }}
           path: dl/reset
 
+      # ---- Extract the ZMK tarballs and re-pack into one bundle ----
       - name: Extract and combine into one tar
         shell: bash
         run: |
@@ -74,22 +76,11 @@ jobs:
             done
           done
 
-          cat > bundle/README.txt <<EOF
+          # README (single-quoted heredoc prevents ${{ }} expansion issues)
+          cat > bundle/README.txt <<'README_EOF'
 Bundle: ${{ matrix.layout }} ${{ matrix.split }}
 Contents:
 - central/: firmware for central controller
 - left/:    (trio only) left peripheral firmware
-- right/:   shared right peripheral firmware
-- reset/:   settings_reset UF2
-EOF
-
-          OUT="${{ matrix.layout }}_${{ matrix.split }}.tar.gz"
-          tar -czf "$OUT" -C bundle .
-          echo "OUT=$OUT" >> "$GITHUB_ENV"
-
-      - name: Upload combined bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.layout }}_${{ matrix.split }}
-          path: ${{ env.OUT }}
+- right/:   shared right peripheral f
 
