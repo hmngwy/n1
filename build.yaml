@@ -19,10 +19,9 @@ include:
   # Duo split (right peripheral)
   - board: nice_nano_v2
     shield: n1_any_right_peripheral
-    cmake-args: -DZMK_CONFIG=/tmp/zmk-config/config/qwerty
-    artifact-name: qwerty_duo_split_right
+    artifact-name: right_peripheral
 
-  # Trio split (central) — SHIELD has a space, so quote it
+  # Trio split (central)
   - board: nice_nano_v2
     shield: "n1_trio_base_central dongle_display"
     snippet: studio-rpc-usb-uart
@@ -32,14 +31,7 @@ include:
   # Trio split (left peripheral)
   - board: nice_nano_v2
     shield: n1_trio_left_peripheral
-    cmake-args: -DZMK_CONFIG=/tmp/zmk-config/config/qwerty
     artifact-name: qwerty_trio_split_left
-
-  # Trio split (right peripheral)
-  - board: nice_nano_v2
-    shield: n1_any_right_peripheral
-    cmake-args: -DZMK_CONFIG=/tmp/zmk-config/config/qwerty
-    artifact-name: qwerty_trio_split_right
 
   # ============================================================
   # COLEMAK
@@ -51,11 +43,6 @@ include:
     artifact-name: colemak_duo_split_left
 
   - board: nice_nano_v2
-    shield: n1_any_right_peripheral
-    cmake-args: -DZMK_CONFIG=/tmp/zmk-config/config/colemak
-    artifact-name: colemak_duo_split_right
-
-  - board: nice_nano_v2
     shield: "n1_trio_base_central dongle_display"
     snippet: studio-rpc-usb-uart
     cmake-args: -DZMK_CONFIG=/tmp/zmk-config/config/colemak
@@ -63,13 +50,8 @@ include:
 
   - board: nice_nano_v2
     shield: n1_trio_left_peripheral
-    cmake-args: -DZMK_CONFIG=/tmp/zmk-config/config/colemak
     artifact-name: colemak_trio_split_left
 
-  - board: nice_nano_v2
-    shield: n1_any_right_peripheral
-    cmake-args: -DZMK_CONFIG=/tmp/zmk-config/config/colemak
-    artifact-name: colemak_trio_split_right
 
   # ============================================================
   # DVORAK
@@ -81,11 +63,6 @@ include:
     artifact-name: dvorak_duo_split_left
 
   - board: nice_nano_v2
-    shield: n1_any_right_peripheral
-    cmake-args: -DZMK_CONFIG=/tmp/zmk-config/config/dvorak
-    artifact-name: dvorak_duo_split_right
-
-  - board: nice_nano_v2
     shield: "n1_trio_base_central dongle_display"
     snippet: studio-rpc-usb-uart
     cmake-args: -DZMK_CONFIG=/tmp/zmk-config/config/dvorak
@@ -93,11 +70,4 @@ include:
 
   - board: nice_nano_v2
     shield: n1_trio_left_peripheral
-    cmake-args: -DZMK_CONFIG=/tmp/zmk-config/config/dvorak
     artifact-name: dvorak_trio_split_left
-
-  - board: nice_nano_v2
-    shield: n1_any_right_peripheral
-    cmake-args: -DZMK_CONFIG=/tmp/zmk-config/config/dvorak
-    artifact-name: dvorak_trio_split_right
-
