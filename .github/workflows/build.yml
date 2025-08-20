@@ -19,28 +19,67 @@ jobs:
       - name: Prepare dirs
         run: |
           set -euo pipefail
-          mkdir -p dl firmware unzip bundle
+          mkdir -p dl firmware work bundle
 
-      # ZMK uploads a single merged zip containing the build outputs for all artifact-names.
-      - name: Download merged firmware artifact
+      - name: Download merged firmware artifact(s)
         uses: actions/download-artifact@v4
         with:
           pattern: firmware*
           path: dl
           merge-multiple: true
 
-      - name: Unpack merged artifact (zip → uf2 files)
+      - name: Inspect downloaded payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "::group::Downloaded tree"
+          ls -lah dl || true
+          if command -v tree >/dev/null 2>&1; then tree -a dl || true; fi
+          echo "::endgroup::"
+
+      - name: Extract all archives and collect UF2s
         shell: bash
         run: |
           set -euo pipefail
           shopt -s nullglob
-          for z in dl/*.zip; do
-            unzip -q "$z" -d unzip
+          mkdir -p work firmware
+
+          # Unzip all zips
+          for z in dl/*.zip dl/**/*.zip; do
+            echo "Unzipping: $z"
+            unzip -q "$z" -d work
           done
-          # Collect every UF2 into a flat folder (handles nested paths)
-          find unzip -type f -name '*.uf2' -exec cp {} firmware/ \;
-          echo "Found firmware files:"
-          ls -la firmware || true
+
+          # Collect tars
+          mkdir -p work/tars
+          find dl work -type f -name '*.tar.gz' -print -exec mv -f {} work/tars/ \;
+
+          # Untar them
+          mkdir -p work/out
+          for t in work/tars/*.tar.gz; do
+            echo "Untarring: $t"
+            tar -xzf "$t" -C work/out
+          done
+
+          # Collect UF2s from anywhere
+          mapfile -t uf2s < <(find dl work -type f -name '*.uf2')
+          if [[ ${#uf2s[@]} -eq 0 ]]; then
+            echo "No UF2 files found after extraction."
+            echo "::group::Post-extraction tree"
+            if command -v tree >/dev/null 2>&1; then tree -a dl work || true; else ls -lahR dl work || true; fi
+            echo "::endgroup::"
+            exit 1
+          fi
+
+          echo "Collecting ${#uf2s[@]} UF2 file(s) into firmware/:"
+          for f in "${uf2s[@]}"; do
+            echo "  - $(basename "$f")"
+            cp -f "$f" firmware/
+          done
+
+          echo "::group::Firmware dir contents"
+          ls -lah firmware
+          echo "::endgroup::"
 
       - name: Compute names for this bundle
         id: names
