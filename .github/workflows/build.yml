@@ -82,5 +82,17 @@ Bundle: ${{ matrix.layout }} ${{ matrix.split }}
 Contents:
 - central/: firmware for central controller
 - left/:    (trio only) left peripheral firmware
-- right/:   shared right peripheral f
+- right/:   shared right peripheral firmware
+- reset/:   settings_reset UF2
+README_EOF
+
+          OUT="${{ matrix.layout }}_${{ matrix.split }}.tar.gz"
+          tar -czf "$OUT" -C bundle .
+          echo "OUT=$OUT" >> "$GITHUB_ENV"
+
+      - name: Upload combined bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.layout }}_${{ matrix.split }}
+          path: ${{ env.OUT }}
 
