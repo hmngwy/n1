@@ -23,76 +23,76 @@ include:
     shield: n1_any_right_peripheral
     artifact-name: qwerty_duo_split_right
 
-  # Trio split (central) — note the space: quote the SHIELD
-  - board: nice_nano_v2
-    shield: "n1_trio_base_central dongle_display"
-    snippet: studio-rpc-usb-uart
-    cmake-args: -DCONFIG_KEYMAP_LAYOUT="qwerty"
-    artifact-name: qwerty_trio_split_central
-
-  # Trio split (left peripheral)
-  - board: nice_nano_v2
-    shield: n1_trio_left_peripheral
-    artifact-name: qwerty_trio_split_left
-
-  # Trio split (right peripheral)
-  - board: nice_nano_v2
-    shield: n1_any_right_peripheral
-    artifact-name: qwerty_trio_split_right
-
-  # ============================================================
-  # COLEMAK (optional)
-  # ============================================================
-
-  - board: nice_nano_v2
-    shield: n1_duo_left_central
-    snippet: studio-rpc-usb-uart
-    cmake-args: -DCONFIG_KEYMAP_LAYOUT="colemak"
-    artifact-name: colemak_duo_split_left
-
-  - board: nice_nano_v2
-    shield: n1_any_right_peripheral
-    artifact-name: colemak_duo_split_right
-
-  - board: nice_nano_v2
-    shield: "n1_trio_base_central dongle_display"
-    snippet: studio-rpc-usb-uart
-    cmake-args: -DCONFIG_KEYMAP_LAYOUT="colemak"
-    artifact-name: colemak_trio_split_central
-
-  - board: nice_nano_v2
-    shield: n1_trio_left_peripheral
-    artifact-name: colemak_trio_split_left
-
-  - board: nice_nano_v2
-    shield: n1_any_right_peripheral
-    artifact-name: colemak_trio_split_right
-
-  # ============================================================
-  # DVORAK (optional)
-  # ============================================================
-
-  - board: nice_nano_v2
-    shield: n1_duo_left_central
-    snippet: studio-rpc-usb-uart
-    cmake-args: -DCONFIG_KEYMAP_LAYOUT="dvorak"
-    artifact-name: dvorak_duo_split_left
-
-  - board: nice_nano_v2
-    shield: n1_any_right_peripheral
-    artifact-name: dvorak_duo_split_right
-
-  - board: nice_nano_v2
-    shield: "n1_trio_base_central dongle_display"
-    snippet: studio-rpc-usb-uart
-    cmake-args: -DCONFIG_KEYMAP_LAYOUT="dvorak"
-    artifact-name: dvorak_trio_split_central
-
-  - board: nice_nano_v2
-    shield: n1_trio_left_peripheral
-    artifact-name: dvorak_trio_split_left
-
-  - board: nice_nano_v2
-    shield: n1_any_right_peripheral
-    artifact-name: dvorak_trio_split_right
-
+#  # Trio split (central) — note the space: quote the SHIELD
+#  - board: nice_nano_v2
+#    shield: "n1_trio_base_central dongle_display"
+#    snippet: studio-rpc-usb-uart
+#    cmake-args: -DCONFIG_KEYMAP_LAYOUT="qwerty"
+#    artifact-name: qwerty_trio_split_central
+#
+#  # Trio split (left peripheral)
+#  - board: nice_nano_v2
+#    shield: n1_trio_left_peripheral
+#    artifact-name: qwerty_trio_split_left
+#
+#  # Trio split (right peripheral)
+#  - board: nice_nano_v2
+#    shield: n1_any_right_peripheral
+#    artifact-name: qwerty_trio_split_right
+#
+#  # ============================================================
+#  # COLEMAK (optional)
+#  # ============================================================
+#
+#  - board: nice_nano_v2
+#    shield: n1_duo_left_central
+#    snippet: studio-rpc-usb-uart
+#    cmake-args: -DCONFIG_KEYMAP_LAYOUT="colemak"
+#    artifact-name: colemak_duo_split_left
+#
+#  - board: nice_nano_v2
+#    shield: n1_any_right_peripheral
+#    artifact-name: colemak_duo_split_right
+#
+#  - board: nice_nano_v2
+#    shield: "n1_trio_base_central dongle_display"
+#    snippet: studio-rpc-usb-uart
+#    cmake-args: -DCONFIG_KEYMAP_LAYOUT="colemak"
+#    artifact-name: colemak_trio_split_central
+#
+#  - board: nice_nano_v2
+#    shield: n1_trio_left_peripheral
+#    artifact-name: colemak_trio_split_left
+#
+#  - board: nice_nano_v2
+#    shield: n1_any_right_peripheral
+#    artifact-name: colemak_trio_split_right
+#
+#  # ============================================================
+#  # DVORAK (optional)
+#  # ============================================================
+#
+#  - board: nice_nano_v2
+#    shield: n1_duo_left_central
+#    snippet: studio-rpc-usb-uart
+#    cmake-args: -DCONFIG_KEYMAP_LAYOUT="dvorak"
+#    artifact-name: dvorak_duo_split_left
+#
+#  - board: nice_nano_v2
+#    shield: n1_any_right_peripheral
+#    artifact-name: dvorak_duo_split_right
+#
+#  - board: nice_nano_v2
+#    shield: "n1_trio_base_central dongle_display"
+#    snippet: studio-rpc-usb-uart
+#    cmake-args: -DCONFIG_KEYMAP_LAYOUT="dvorak"
+#    artifact-name: dvorak_trio_split_central
+#
+#  - board: nice_nano_v2
+#    shield: n1_trio_left_peripheral
+#    artifact-name: dvorak_trio_split_left
+#
+#  - board: nice_nano_v2
+#    shield: n1_any_right_peripheral
+#    artifact-name: dvorak_trio_split_right
+#
