@@ -1,15 +1,45 @@
-# configure central
-if SHIELD_N1_TRIO_BASE_CENTRAL || SHIELD_N1_TRIO_LEFT_CENTRAL
+# -------------------------
+# Central (Duo or Trio base)
+# -------------------------
+if SHIELD_BASEFORM_TRIO_BASE_CENTRAL || SHIELD_BASEFORM_DUO_LEFT_CENTRAL
 
 config ZMK_KEYBOARD_NAME
-    default "n1"
+    default "baseform"
+
+# Allow selecting layout via -DCONFIG_KEYMAP_LAYOUT="qwerty" (default qwerty)
+config KEYMAP_LAYOUT
+    string "Keymap layout"
+    default "qwerty"
+
+# Point ZMK to the keymap file based on the layout above
+config ZMK_KEYMAP
+    string
+    default "config/$(KEYMAP_LAYOUT)/baseform.keymap"
 
 config ZMK_SPLIT_ROLE_CENTRAL
+    bool
     default y
 
-endif
+# Raise Zephyr device name limit only for centrals (prevents overflow on long DT paths)
+config DEVICE_MAX_NAME_LEN
+    default 128
 
-# configure display
+endif # central
+
+# -------------------------
+# Split (all participating halves)
+# -------------------------
+if SHIELD_BASEFORM_TRIO_BASE_CENTRAL || SHIELD_BASEFORM_TRIO_LEFT_PERIPHERAL || \
+   SHIELD_BASEFORM_DUO_LEFT_CENTRAL  || SHIELD_BASEFORM_ANY_RIGHT_PERIPHERAL
+
+config ZMK_SPLIT
+    default y
+
+endif # split
+
+# -------------------------
+# Display config (if enabled)
+# -------------------------
 if ZMK_DISPLAY
 
 config I2C
@@ -20,6 +50,9 @@ config SSD1306
 
 endif # ZMK_DISPLAY
 
+# -------------------------
+# LVGL display params (if enabled)
+# -------------------------
 if LVGL
 
 config LV_Z_VDB_SIZE
@@ -37,11 +70,3 @@ endchoice
 
 endif # LVGL
 
-# for all
-
-if SHIELD_N1_TRIO_BASE_CENTRAL || SHIELD_N1_TRIO_LEFT_PERIPHERAL || SHIELD_N1_DUO_LEFT_CENTRAL || SHIELD_N1_ANY_RIGHT_PERIPHERAL
-
-config ZMK_SPLIT
-    default y
-
-endif
