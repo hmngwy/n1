@@ -20,10 +20,6 @@ config ZMK_SPLIT_ROLE_CENTRAL
     bool
     default y
 
-# Raise Zephyr device name limit only for centrals (prevents overflow on long DT paths)
-config DEVICE_MAX_NAME_LEN
-    default 128
-
 endif # central
 
 # -------------------------
