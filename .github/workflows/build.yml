@@ -21,8 +21,7 @@ jobs:
           set -euo pipefail
           mkdir -p dl firmware unzip bundle
 
-      # Download the single merged artifact produced by ZMK.
-      # Use a pattern in case the name has a suffix.
+      # ZMK uploads a single merged zip containing the build outputs for all artifact-names.
       - name: Download merged firmware artifact
         uses: actions/download-artifact@v4
         with:
@@ -30,20 +29,18 @@ jobs:
           path: dl
           merge-multiple: true
 
-      - name: Unpack merged artifact (zip → tars)
+      - name: Unpack merged artifact (zip → uf2 files)
         shell: bash
         run: |
           set -euo pipefail
           shopt -s nullglob
-          # The ZMK workflow uploads a zip containing *.tar.gz, one per artifact-name
           for z in dl/*.zip; do
             unzip -q "$z" -d unzip
           done
-          # Move *.tar.gz into a flat folder for easy lookup
-          mkdir -p firmware
-          mv unzip/*.tar.gz firmware/ || true
-          echo "Found tars:"
-          ls -lah firmware || true
+          # Collect every UF2 into a flat folder (handles nested paths)
+          find unzip -type f -name '*.uf2' -exec cp {} firmware/ \;
+          echo "Found firmware files:"
+          ls -la firmware || true
 
       - name: Compute names for this bundle
         id: names
@@ -62,7 +59,7 @@ jobs:
             echo "left=${L}_trio_split_left"     >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Verify required tars exist
+      - name: Verify required UF2s exist
         shell: bash
         run: |
           set -euo pipefail
@@ -72,13 +69,13 @@ jobs:
             need+=( "${{ steps.names.outputs.left }}" )
           fi
           for n in "${need[@]}"; do
-            if [[ ! -f "firmware/${n}.tar.gz" ]]; then
-              echo "Missing firmware/${n}.tar.gz"
+            if [[ ! -f "firmware/${n}.uf2" ]]; then
+              echo "Missing firmware/${n}.uf2"
               miss=1
             fi
           done
           if [[ $miss -ne 0 ]]; then
-            echo "One or more required artifacts are missing. Check your build matrix artifact-name values."
+            echo "One or more required firmware files are missing. Check your build include: artifact-name values."
             exit 1
           fi
 
@@ -89,14 +86,13 @@ jobs:
           rm -rf bundle && mkdir -p bundle/central bundle/right bundle/reset
           [[ -n "${{ steps.names.outputs.left }}" ]] && mkdir -p bundle/left
 
-          tar -xzf "firmware/${{ steps.names.outputs.central }}.tar.gz" -C bundle/central
+          cp "firmware/${{ steps.names.outputs.central }}.uf2" bundle/central/
           if [[ -n "${{ steps.names.outputs.left }}" ]]; then
-            tar -xzf "firmware/${{ steps.names.outputs.left }}.tar.gz"    -C bundle/left
+            cp "firmware/${{ steps.names.outputs.left }}.uf2"    bundle/left/
           fi
-          tar -xzf "firmware/${{ steps.names.outputs.right }}.tar.gz"   -C bundle/right
-          tar -xzf "firmware/${{ steps.names.outputs.reset }}.tar.gz"   -C bundle/reset
+          cp "firmware/${{ steps.names.outputs.right }}.uf2"   bundle/right/
+          cp "firmware/${{ steps.names.outputs.reset }}.uf2"   bundle/reset/
 
-          # Write a tiny README without heredocs (avoids EOF quoting issues)
           {
             echo "Bundle: ${{ matrix.layout }} ${{ matrix.split }}"
             echo "Contents:"
