@@ -17,10 +17,13 @@ jobs:
 
     steps:
       - name: Prepare dirs
+        shell: bash
         run: |
           set -euo pipefail
-          mkdir -p dl firmware work bundle
+          mkdir -p dl work firmware bundle stage
 
+      # The ZMK workflow usually uploads ONE merged artifact named like "firmware-<sha>"
+      # which itself is a ZIP containing per-artifact TAR.GZs.
       - name: Download merged firmware artifact(s)
         uses: actions/download-artifact@v4
         with:
@@ -37,44 +40,47 @@ jobs:
           if command -v tree >/dev/null 2>&1; then tree -a dl || true; fi
           echo "::endgroup::"
 
-      - name: Extract all archives and collect UF2s
+      - name: Extract all archives and collect UF2/BINs
         shell: bash
         run: |
           set -euo pipefail
           shopt -s nullglob
           mkdir -p work firmware
 
-          # Unzip all zips
+          # 1) Unzip everything we got into work/
           for z in dl/*.zip dl/**/*.zip; do
             echo "Unzipping: $z"
             unzip -q "$z" -d work
           done
 
-          # Collect tars
+          # 2) Pull all *.tar.gz we can find (from dl/ or after unzip) into work/tars
           mkdir -p work/tars
-          find dl work -type f -name '*.tar.gz' -print -exec mv -f {} work/tars/ \;
+          find dl work -type f -name '*.tar.gz' -print -exec mv -f {} work/tars/ \; || true
 
-          # Untar them
+          # 3) Untar to work/out (each tar usually corresponds to an artifact-name)
           mkdir -p work/out
           for t in work/tars/*.tar.gz; do
             echo "Untarring: $t"
-            tar -xzf "$t" -C work/out
+            tar -xzf "$t" -C work/out || {
+              echo "Warning: failed to untar $t (may be empty)"; true;
+            }
           done
 
-          # Collect UF2s from anywhere
-          mapfile -t uf2s < <(find dl work -type f -name '*.uf2')
-          if [[ ${#uf2s[@]} -eq 0 ]]; then
-            echo "No UF2 files found after extraction."
+          # 4) Collect any UF2/BIN from anywhere (handles any nesting shape)
+          mapfile -t outs < <(find dl work -type f \( -name '*.uf2' -o -name '*.bin' \) )
+          if [[ ${#outs[@]} -eq 0 ]]; then
+            echo "No UF2 or BIN files found after extraction."
             echo "::group::Post-extraction tree"
             if command -v tree >/dev/null 2>&1; then tree -a dl work || true; else ls -lahR dl work || true; fi
             echo "::endgroup::"
             exit 1
           fi
 
-          echo "Collecting ${#uf2s[@]} UF2 file(s) into firmware/:"
-          for f in "${uf2s[@]}"; do
-            echo "  - $(basename "$f")"
-            cp -f "$f" firmware/
+          echo "Collecting ${#outs[@]} firmware file(s) into firmware/:"
+          for f in "${outs[@]}"; do
+            b="$(basename "$f")"
+            echo "  - $b"
+            cp -f "$f" "firmware/$b"
           done
 
           echo "::group::Firmware dir contents"
@@ -98,55 +104,105 @@ jobs:
             echo "left=${L}_trio_split_left"     >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Verify required UF2s exist
+      - name: Resolve actual file extensions
+        id: ext
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Prefer UF2; fall back to BIN per file.
+          choose_ext () {
+            local base="$1"
+            if [[ -f "firmware/${base}.uf2" ]]; then
+              echo "uf2"
+            elif [[ -f "firmware/${base}.bin" ]]; then
+              echo "bin"
+            else
+              echo ""
+            fi
+          }
+
+          c_ext="$(choose_ext "${{ steps.names.outputs.central }}")"
+          r_ext="$(choose_ext "${{ steps.names.outputs.right }}")"
+          x_ext="$(choose_ext "${{ steps.names.outputs.reset }}")"
+
+          if [[ -n "${{ steps.names.outputs.left }}" ]]; then
+            l_ext="$(choose_ext "${{ steps.names.outputs.left }}")"
+          else
+            l_ext=""
+          fi
+
+          echo "central_ext=$c_ext" >> "$GITHUB_OUTPUT"
+          echo "right_ext=$r_ext"   >> "$GITHUB_OUTPUT"
+          echo "reset_ext=$x_ext"   >> "$GITHUB_OUTPUT"
+          echo "left_ext=$l_ext"    >> "$GITHUB_OUTPUT"
+
+      - name: Verify required firmware files exist
         shell: bash
         run: |
           set -euo pipefail
           miss=0
-          need=( "${{ steps.names.outputs.central }}" "${{ steps.names.outputs.right }}" "${{ steps.names.outputs.reset }}" )
-          if [[ -n "${{ steps.names.outputs.left }}" ]]; then
-            need+=( "${{ steps.names.outputs.left }}" )
-          fi
-          for n in "${need[@]}"; do
-            if [[ ! -f "firmware/${n}.uf2" ]]; then
-              echo "Missing firmware/${n}.uf2"
+
+          check_file () {
+            local base="$1"
+            local ext="$2"
+            if [[ -z "$ext" ]]; then
+              echo "Missing firmware for $base (.uf2/.bin not found)"
+              miss=1
+              return
+            fi
+            local path="firmware/${base}.${ext}"
+            if [[ ! -f "$path" ]]; then
+              echo "Missing $path"
               miss=1
             fi
-          done
+          }
+
+          check_file "${{ steps.names.outputs.central }}" "${{ steps.ext.outputs.central_ext }}"
+          check_file "${{ steps.names.outputs.right }}"   "${{ steps.ext.outputs.right_ext }}"
+          check_file "${{ steps.names.outputs.reset }}"   "${{ steps.ext.outputs.reset_ext }}"
+          if [[ -n "${{ steps.names.outputs.left }}" ]]; then
+            check_file "${{ steps.names.outputs.left }}" "${{ steps.ext.outputs.left_ext }}"
+          fi
+
           if [[ $miss -ne 0 ]]; then
-            echo "One or more required firmware files are missing. Check your build include: artifact-name values."
+            echo "One or more required firmware files are missing. Check your build include: artifact-name values and the upstream ZMK build outputs."
             exit 1
           fi
 
-      - name: Build combined bundle
+      - name: Build flat ZIP bundle (files at root)
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf bundle && mkdir -p bundle/central bundle/right bundle/reset
-          [[ -n "${{ steps.names.outputs.left }}" ]] && mkdir -p bundle/left
+          rm -rf stage bundle && mkdir -p stage bundle
 
-          cp "firmware/${{ steps.names.outputs.central }}.uf2" bundle/central/
+          # Copy with original artifact-name-based filenames into a flat staging dir.
+          cp "firmware/${{ steps.names.outputs.central }}.${{ steps.ext.outputs.central_ext }}" stage/
+          cp "firmware/${{ steps.names.outputs.right }}.${{ steps.ext.outputs.right_ext }}"   stage/
+          cp "firmware/${{ steps.names.outputs.reset }}.${{ steps.ext.outputs.reset_ext }}"   stage/
           if [[ -n "${{ steps.names.outputs.left }}" ]]; then
-            cp "firmware/${{ steps.names.outputs.left }}.uf2"    bundle/left/
+            cp "firmware/${{ steps.names.outputs.left }}.${{ steps.ext.outputs.left_ext }}"   stage/
           fi
-          cp "firmware/${{ steps.names.outputs.right }}.uf2"   bundle/right/
-          cp "firmware/${{ steps.names.outputs.reset }}.uf2"   bundle/reset/
 
+          # Optional: include a minimal README alongside the root files.
           {
             echo "Bundle: ${{ matrix.layout }} ${{ matrix.split }}"
-            echo "Contents:"
-            echo "- central/: firmware for central controller"
+            echo "Files are placed at the root of this zip:"
+            echo " - ${{ steps.names.outputs.central }}.${{ steps.ext.outputs.central_ext }}  (central controller)"
             if [[ -n "${{ steps.names.outputs.left }}" ]]; then
-              echo "- left/:    (trio only) left peripheral firmware"
+              echo " - ${{ steps.names.outputs.left }}.${{ steps.ext.outputs.left_ext }}     (trio left peripheral)"
             fi
-            echo "- right/:   shared right peripheral firmware"
-            echo "- reset/:   settings_reset UF2"
-          } > bundle/README.txt
+            echo " - ${{ steps.names.outputs.right }}.${{ steps.ext.outputs.right_ext }}     (shared right peripheral)"
+            echo " - ${{ steps.names.outputs.reset }}.${{ steps.ext.outputs.reset_ext }}     (settings_reset)"
+          } > stage/README.txt
 
-          OUT="${{ matrix.layout }}_${{ matrix.split }}.tar.gz"
-          tar -czf "$OUT" -C bundle .
+          OUT="${{ matrix.layout }}_${{ matrix.split }}.zip"
+
+          # -j = junk paths -> puts files at the root of the zip
+          ( cd stage && zip -q -j "../$OUT" * )
+
           echo "OUT=$OUT" >> "$GITHUB_ENV"
-          echo "Wrote $OUT"
+          echo "Created $OUT with files at zip root:"
+          unzip -l "$OUT" || true
 
       - name: Upload bundle
         uses: actions/upload-artifact@v4
