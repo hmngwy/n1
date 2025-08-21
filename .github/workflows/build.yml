@@ -312,6 +312,7 @@ jobs:
       - name: Commit & push README update
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.determine-tag.outputs.tag }}   # <-- ensure TAG is set here
         shell: bash
         run: |
           set -euo pipefail
@@ -319,7 +320,6 @@ jobs:
           # Determine branch we should push to
           BRANCH="${GITHUB_REF_NAME:-}"
           if [[ -z "$BRANCH" ]]; then
-            # Fallback to default branch name from origin
             BRANCH="$(git remote show origin | awk '/HEAD branch/ {print $NF}')"
           fi
           BRANCH="${BRANCH:-main}"
@@ -336,6 +336,7 @@ jobs:
           # Rebase on remote branch to avoid non-fast-forward issues
           git fetch origin "$BRANCH"
           git checkout -B "$BRANCH" "origin/$BRANCH" || git checkout -B "$BRANCH"
+
           git commit -m "docs: update firmware download links for ${TAG}"
           git push origin "$BRANCH"
 
