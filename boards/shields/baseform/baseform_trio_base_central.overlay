@@ -1,4 +1,4 @@
-#include "n1.dtsi"
+#include "baseform.dtsi"
 
 / {
     chosen {

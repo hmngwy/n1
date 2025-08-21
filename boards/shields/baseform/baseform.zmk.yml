@@ -1,8 +1,8 @@
 file_format: "1"
-id: n1 
-name: n1
+id: baseform 
+name: baseform
 type: shield
-url: https://github.com/hmngwy/n1
+url: https://github.com/hmngwy/baseform
 requires: [nice_nano_v2]
 exposes: [i2c_oled]
 features:
@@ -10,5 +10,5 @@ features:
   - display
   - studio
 siblings:
-  - n1_left
-  - n1_right
+  - baseform_left
+  - baseform_right
