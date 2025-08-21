@@ -26,15 +26,8 @@ on:
 permissions:
   contents: write   # needed for releases + README commit
 
-env:
-  # Matrix once; adjust layouts/splits as needed
-  LAYOUTS: qwerty,colemak,dvorak
-  SPLITS: duo,trio
-
 jobs:
-  # Set a TAG for this run:
-  # - manual publish:     inputs.tag (e.g., v2025.08.21)
-  # - CI (push/PR):       ci-<shortsha>
+  # 0) Determine TAG
   determine-tag:
     runs-on: ubuntu-latest
     outputs:
@@ -54,19 +47,18 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "$EV" == "workflow_dispatch" ]]; then
-            TAG="${IN_TAG}"
+            TAG="${IN_TAG}"                 # manual tag, e.g. v2025.08.21
             TITLE="${IN_TITLE:-Firmware}"
             PRE="${IN_PRE:-false}"
           else
             SHORT="$(echo "$SHA" | cut -c1-7)"
-            TAG="ci-${SHORT}"
+            TAG="${SHORT}"                  # ci run => 7-char commit hash
             TITLE="CI Firmware ${SHORT}"
             PRE="true"
           fi
-          echo "TAG=$TAG"           | tee -a "$GITHUB_OUTPUT"
-          echo "TITLE=$TITLE"       | tee -a "$GITHUB_OUTPUT"
-          echo "PRERELEASE=$PRE"    | tee -a "$GITHUB_OUTPUT"
-          echo "Resolved TAG: $TAG"
+          echo "TAG=$TAG"        | tee -a "$GITHUB_OUTPUT"
+          echo "TITLE=$TITLE"    | tee -a "$GITHUB_OUTPUT"
+          echo "PRERELEASE=$PRE" | tee -a "$GITHUB_OUTPUT"
 
   # 1) Build using ZMK's official workflow
   build:
@@ -161,7 +153,7 @@ jobs:
           fi
           [[ $miss -eq 0 ]]
 
-      - name: Stage & zip per matrix (include TAG in filenames)
+      - name: Stage & zip per matrix (flat; hyphenated tag)
         shell: bash
         env:
           TAG: ${{ needs.determine-tag.outputs.tag }}
@@ -172,43 +164,41 @@ jobs:
           R_EXT="${{ steps.ext.outputs.right_ext }}"
           X_EXT="${{ steps.ext.outputs.reset_ext }}"
           L_EXT="${{ steps.ext.outputs.left_ext }}"
-          rm -rf stage && mkdir -p stage
+          rm -rf stage && mkdir -p stage dist
 
-          # Central (duo=..._split_left ; trio=..._split_central) — add _<TAG>
+          # Central
           cp "firmware/${{ steps.names.outputs.central }}.${C_EXT}" \
-             "stage/${{ steps.names.outputs.central }}_${TAG}.${C_EXT}"
+             "stage/${{ steps.names.outputs.central }}-${TAG}.${C_EXT}"
 
-          # Trio left peripheral (if any) — add _<TAG>
+          # Trio left (if any)
           if [[ -n "${{ steps.names.outputs.left }}" ]]; then
             cp "firmware/${{ steps.names.outputs.left }}.${L_EXT}" \
-               "stage/${{ steps.names.outputs.left }}_${TAG}.${L_EXT}"
+               "stage/${{ steps.names.outputs.left }}-${TAG}.${L_EXT}"
           fi
 
-          # Right peripheral — rename any_right_peripheral -> <layout>_<split>_split_right_<TAG>.<ext>
+          # Right peripheral
           cp "firmware/${{ steps.names.outputs.right }}.${R_EXT}" \
-             "stage/${L}_${S}_split_right_${TAG}.${R_EXT}"
+             "stage/${L}_${S}_split_right-${TAG}.${R_EXT}"
 
-          # Reset — add _<TAG>
+          # Reset
           cp "firmware/${{ steps.names.outputs.reset }}.${X_EXT}" \
-             "stage/_reset_${TAG}.${X_EXT}"
+             "stage/_reset-${TAG}.${X_EXT}"
 
           echo "Staged files:"
           ls -lah stage
 
-          # Create tagged zip asset: <layout>_<split>_<TAG>.zip with root-level files
-          OUT="dist/${L}_${S}_${TAG}.zip"
-          mkdir -p dist
-          ( cd stage && zip -q -j "../${OUT}" * )
-          echo "Wrote ${OUT}"
-          ls -lah dist
+          OUT="dist/${L}_${S}-${TAG}.zip"
+          zip -q -j "$OUT" stage/*   # -j puts UF2s at root
+          echo "Created $OUT"
+          unzip -l "$OUT"
 
-      - name: Upload CI artifact (tagged)
+      - name: Upload CI artifact (clean name)
         uses: actions/upload-artifact@v4
         with:
-          name: zips_${{ needs.determine-tag.outputs.tag }}_${{ matrix.layout }}_${{ matrix.split }}
+          name: ${{ matrix.layout }}_${{ matrix.split }}   # e.g. qwerty_duo
           path: dist/*.zip
 
-  # 3) Publish only for manual runs: create/update Release + update README links
+  # 3) Publish only for manual runs
   publish:
     if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
@@ -220,7 +210,7 @@ jobs:
       - name: Download packaged zips
         uses: actions/download-artifact@v4
         with:
-          pattern: zips_${{ needs.determine-tag.outputs.tag }}_*
+          pattern: '*_*'
           path: dist
           merge-multiple: true
 
@@ -257,7 +247,7 @@ jobs:
               local LUP="$(tr '[:lower:]' '[:upper:]' <<< ${L:0:1})${L:1}"
               echo "- ${LUP}"
               for S in duo trio; do
-                local FILE="${L}_${S}_${TAG}.zip"
+                local FILE="${L}_${S}-${TAG}.zip"
                 if [[ -f "dist/$FILE" ]]; then
                   echo "  - [${S^}](https://github.com/${REPO}/releases/download/${TAG}/${FILE})"
                 fi
@@ -269,22 +259,12 @@ jobs:
             echo
             echo "<!-- FIRMWARE-LINKS:END -->"
           }
-
           NEW="$(gen)"
-
           awk -v RS= -v ORS= '
-            BEGIN{
-              start="<!-- FIRMWARE-LINKS:START";
-              end="<!-- FIRMWARE-LINKS:END -->"
-            }
-            {
-              block="'"$NEW"'"
-              if ($0 ~ start && $0 ~ end) {
-                sub(start "[\\s\\S]*" end, block, $0)
-              }
-              print
-            }' README.md > README.tmp
-
+            BEGIN{start="<!-- FIRMWARE-LINKS:START"; end="<!-- FIRMWARE-LINKS:END -->"}
+            {block="'"$NEW"'"
+             if ($0 ~ start && $0 ~ end) {sub(start "[\\s\\S]*" end, block, $0)}
+             print}' README.md > README.tmp
           mv README.tmp README.md
 
       - name: Commit README update
