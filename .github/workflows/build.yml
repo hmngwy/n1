@@ -237,12 +237,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          gen() {
+
+          # 1) Generate the replacement block to a temp file (includes markers)
+          NEWFILE="$(mktemp)"
+          {
             echo "## Downloads"
             echo
             echo "<!-- FIRMWARE-LINKS:START - Do not edit below, this section is managed by CI -->"
             echo
-            group() {
+            gen_group () {
               local L="$1"
               local LUP="$(tr '[:lower:]' '[:upper:]' <<< ${L:0:1})${L:1}"
               echo "- ${LUP}"
@@ -253,31 +256,35 @@ jobs:
                 fi
               done
             }
-            group qwerty
-            group colemak
-            group dvorak
+            gen_group qwerty
+            gen_group colemak
+            gen_group dvorak
             echo
             echo "<!-- FIRMWARE-LINKS:END -->"
-          }
-          NEW="$(gen)"
-          awk -v RS= -v ORS= '
-            BEGIN{start="<!-- FIRMWARE-LINKS:START"; end="<!-- FIRMWARE-LINKS:END -->"}
-            {block="'"$NEW"'"
-             if ($0 ~ start && $0 ~ end) {sub(start "[\\s\\S]*" end, block, $0)}
-             print}' README.md > README.tmp
-          mv README.tmp README.md
+          } > "$NEWFILE"
 
-      - name: Commit README update
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet -- README.md; then
-            git add README.md
-            git commit -m "docs: update firmware download links for ${{ needs.determine-tag.outputs.tag }}"
-            git push
-          else
-            echo "README already up to date."
-          fi
+          # 2) Splice it into README.md between the markers safely
+          awk -v blockfile="$NEWFILE" '
+            BEGIN {
+              # Read the entire replacement block from file
+              while ((getline line < blockfile) > 0) {
+                block = block line "\n"
+              }
+              close(blockfile)
+            }
+            {
+              if ($0 ~ /<!-- FIRMWARE-LINKS:START/) {
+                print block
+                inblock = 1
+                next
+              }
+              if ($0 ~ /<!-- FIRMWARE-LINKS:END -->/) {
+                inblock = 0
+                next
+              }
+              if (!inblock) print
+            }
+          ' README.md > README.tmp
+
+          mv README.tmp README.md
 
