@@ -237,7 +237,7 @@ jobs:
           persist-credentials: true    # use GITHUB_TOKEN for push
           # ref defaults to the workflow ref; for workflow_dispatch it's your default branch
 
-      - name: Update README links (safe replace or insert)
+      - name: Update README links (write all 6 direct-download links)
         env:
           TAG: ${{ needs.determine-tag.outputs.tag }}
           REPO: ${{ github.repository }}
@@ -249,36 +249,29 @@ jobs:
             echo "ERROR: README.md not found at repo root"; exit 1
           fi
 
-          # Build the replacement block to a temp file (includes markers)
-          NEWFILE="$(mktemp)"
-          {
-            echo "## Downloads"
-            echo
-            echo "<!-- FIRMWARE-LINKS:START - Do not edit below, this section is managed by CI -->"
-            echo
-            gen_group () {
-              local L="$1"
-              local LUP="$(tr '[:lower:]' '[:upper:]' <<< ${L:0:1})${L:1}"
-              echo "- ${LUP}"
-              for S in duo trio; do
-                local FILE="${L}_${S}-${TAG}.zip"
-                if [[ -f "dist/$FILE" ]]; then
-                  echo "  - [${S^}](https://github.com/${REPO}/releases/download/${TAG}/${FILE})"
-                fi
-              done
-            }
-            gen_group qwerty
-            gen_group colemak
-            gen_group dvorak
-            echo
-            echo "<!-- FIRMWARE-LINKS:END -->"
-          } > "$NEWFILE"
-
           START='<!-- FIRMWARE-LINKS:START'
           END='<!-- FIRMWARE-LINKS:END -->'
 
+          NEWFILE="$(mktemp)"
+          {
+            echo "$START - Do not edit below, this section is managed by CI -->"
+            echo
+            make_group () {
+              local layout="$1"
+              local title="$2"
+              echo "- ${title}"
+              echo "  - [Duo](https://github.com/${REPO}/releases/download/${TAG}/${layout}_duo-${TAG}.zip)"
+              echo "  - [Trio](https://github.com/${REPO}/releases/download/${TAG}/${layout}_trio-${TAG}.zip)"
+            }
+            make_group qwerty  "QWERTY"
+            make_group colemak "Colemak"
+            make_group dvorak  "Dvorak"
+            echo
+            echo "$END"
+          } > "$NEWFILE"
+
+          # Replace if markers exist, else insert after first H1 or at top
           if grep -q "$START" README.md && grep -q "$END" README.md; then
-            # Replace the block between markers
             awk -v blockfile="$NEWFILE" '
               BEGIN {
                 while ((getline line < blockfile) > 0) block = block line "\n"
@@ -291,7 +284,6 @@ jobs:
               }
             ' README.md > README.tmp
           else
-            # Markers missing — insert block after first H1 or at top
             if grep -n '^# ' README.md >/dev/null; then
               line=$(grep -n '^# ' README.md | head -1 | cut -d: -f1)
               head -n "$line" README.md > README.tmp
