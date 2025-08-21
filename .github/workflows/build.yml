@@ -230,7 +230,14 @@ jobs:
           fi
           gh release upload "$TAG" dist/*.zip --clobber
 
-      - name: Regenerate README firmware links
+      - name: Checkout repo (pushable)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0               # we want full history so we can push cleanly
+          persist-credentials: true    # use GITHUB_TOKEN for push
+          # ref defaults to the workflow ref; for workflow_dispatch it's your default branch
+
+      - name: Update README links (safe replace or insert)
         env:
           TAG: ${{ needs.determine-tag.outputs.tag }}
           REPO: ${{ github.repository }}
@@ -238,7 +245,11 @@ jobs:
         run: |
           set -euo pipefail
 
-          # 1) Generate the replacement block to a temp file (includes markers)
+          if [[ ! -f README.md ]]; then
+            echo "ERROR: README.md not found at repo root"; exit 1
+          fi
+
+          # Build the replacement block to a temp file (includes markers)
           NEWFILE="$(mktemp)"
           {
             echo "## Downloads"
@@ -263,28 +274,68 @@ jobs:
             echo "<!-- FIRMWARE-LINKS:END -->"
           } > "$NEWFILE"
 
-          # 2) Splice it into README.md between the markers safely
-          awk -v blockfile="$NEWFILE" '
-            BEGIN {
-              # Read the entire replacement block from file
-              while ((getline line < blockfile) > 0) {
-                block = block line "\n"
+          START='<!-- FIRMWARE-LINKS:START'
+          END='<!-- FIRMWARE-LINKS:END -->'
+
+          if grep -q "$START" README.md && grep -q "$END" README.md; then
+            # Replace the block between markers
+            awk -v blockfile="$NEWFILE" '
+              BEGIN {
+                while ((getline line < blockfile) > 0) block = block line "\n"
+                close(blockfile)
               }
-              close(blockfile)
-            }
-            {
-              if ($0 ~ /<!-- FIRMWARE-LINKS:START/) {
-                print block
-                inblock = 1
-                next
+              {
+                if ($0 ~ /<!-- FIRMWARE-LINKS:START/) { print block; inblock=1; next }
+                if ($0 ~ /<!-- FIRMWARE-LINKS:END -->/) { inblock=0; next }
+                if (!inblock) print
               }
-              if ($0 ~ /<!-- FIRMWARE-LINKS:END -->/) {
-                inblock = 0
-                next
-              }
-              if (!inblock) print
-            }
-          ' README.md > README.tmp
+            ' README.md > README.tmp
+          else
+            # Markers missing — insert block after first H1 or at top
+            if grep -n '^# ' README.md >/dev/null; then
+              line=$(grep -n '^# ' README.md | head -1 | cut -d: -f1)
+              head -n "$line" README.md > README.tmp
+              echo >> README.tmp
+              cat "$NEWFILE" >> README.tmp
+              tail -n +"$((line+1))" README.md >> README.tmp
+            else
+              cat "$NEWFILE" README.md > README.tmp
+            fi
+          fi
 
           mv README.tmp README.md
+
+          echo "----- README diff (first 120 lines) -----"
+          git --no-pager diff -- README.md | head -120 || true
+          echo "----------------------------------------"
+
+      - name: Commit & push README update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Determine branch we should push to
+          BRANCH="${GITHUB_REF_NAME:-}"
+          if [[ -z "$BRANCH" ]]; then
+            # Fallback to default branch name from origin
+            BRANCH="$(git remote show origin | awk '/HEAD branch/ {print $NF}')"
+          fi
+          BRANCH="${BRANCH:-main}"
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+
+          if git diff --cached --quiet; then
+            echo "No README changes to commit."
+            exit 0
+          fi
+
+          # Rebase on remote branch to avoid non-fast-forward issues
+          git fetch origin "$BRANCH"
+          git checkout -B "$BRANCH" "origin/$BRANCH" || git checkout -B "$BRANCH"
+          git commit -m "docs: update firmware download links for ${TAG}"
+          git push origin "$BRANCH"
 
