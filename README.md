@@ -1,7 +1,3 @@
-## Downloads
-
-## Downloads
-
 <!-- FIRMWARE-LINKS:START - Do not edit below, this section is managed by CI -->
 
 ### Firmware v2025.08.21f
@@ -16,6 +12,4 @@
   - [Trio](https://github.com/hmngwy/n1/releases/download/v2025.08.21f/dvorak_trio-v2025.08.21f.zip)
 
 <!-- FIRMWARE-LINKS:END -->
-
-
 
