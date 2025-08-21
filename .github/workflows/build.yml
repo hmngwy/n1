@@ -255,8 +255,7 @@ jobs:
           NEWFILE="$(mktemp)"
           {
             echo "$START - Do not edit below, this section is managed by CI -->"
-            echo
-            echo "### Firmware $TAG"
+            echo "#### Firmware $TAG"
             make_group () {
               local layout="$1"
               local title="$2"
