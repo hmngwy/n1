@@ -1,12 +1,33 @@
-name: ZMK Build + Bundle
+name: ZMK Build + Publish (manual)
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g., v2025.08.21)"
+        required: true
+        default: "v2025.08.21"
+      title:
+        description: "Release title"
+        required: false
+        default: "Firmware"
+      prerelease:
+        description: "Mark as prerelease?"
+        required: true
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+
+permissions:
+  contents: write   # create releases + commit README changes
 
 jobs:
+  # 1) Build using ZMK's official workflow
   build:
     uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
 
-  package-bundles:
+  # 2) Package: collect outputs, rename with tag, zip per layout/split
+  package:
     runs-on: ubuntu-latest
     needs: [build]
     strategy:
@@ -16,11 +37,11 @@ jobs:
         split:  [duo, trio]
 
     steps:
-      - name: Prepare dirs
+      - name: Prep
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p dl work firmware stage
+          mkdir -p dl work firmware stage dist
 
       - name: Download merged firmware artifact(s)
         uses: actions/download-artifact@v4
@@ -29,61 +50,25 @@ jobs:
           path: dl
           merge-multiple: true
 
-      - name: Inspect downloaded payload
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "::group::Downloaded tree"
-          ls -lah dl || true
-          if command -v tree >/dev/null 2>&1; then tree -a dl || true; fi
-          echo "::endgroup::"
-
-      - name: Extract all archives and collect UF2/BINs
+      - name: Extract and collect UF2/BINs
         shell: bash
         run: |
           set -euo pipefail
           shopt -s nullglob
           mkdir -p work firmware
-
-          # 1) Unzip any zips we got
-          for z in dl/*.zip dl/**/*.zip; do
-            echo "Unzipping: $z"
-            unzip -q "$z" -d work
-          done
-
-          # 2) Pull *.tar.gz into work/tars (from dl/ or work/)
-          mkdir -p work/tars
+          # Unzip anything we got
+          for z in dl/*.zip dl/**/*.zip; do unzip -q "$z" -d work || true; done
+          # Pull + untar nested tarballs
+          mkdir -p work/tars work/out
           find dl work -type f -name '*.tar.gz' -print -exec mv -f {} work/tars/ \; || true
+          for t in work/tars/*.tar.gz; do tar -xzf "$t" -C work/out || true; done
+          # Collect UF2/BINs
+          mapfile -t outs < <(find dl work -type f \( -name '*.uf2' -o -name '*.bin' \))
+          [[ ${#outs[@]} -gt 0 ]] || { echo "No UF2/BIN found"; exit 1; }
+          for f in "${outs[@]}"; do cp -f "$f" "firmware/$(basename "$f")"; done
+          echo "Collected firmware files:"; ls -lah firmware || true
 
-          # 3) Untar everything to work/out
-          mkdir -p work/out
-          for t in work/tars/*.tar.gz; do
-            echo "Untarring: $t"
-            tar -xzf "$t" -C work/out || {
-              echo "Warning: failed to untar $t (may be empty)"; true;
-            }
-          done
-
-          # 4) Collect any UF2/BIN from anywhere
-          mapfile -t outs < <(find dl work -type f \( -name '*.uf2' -o -name '*.bin' \) )
-          if [[ ${#outs[@]} -eq 0 ]]; then
-            echo "No UF2/BIN files found after extraction."
-            echo "::group::Post-extraction tree"
-            if command -v tree >/dev/null 2>&1; then tree -a dl work || true; else ls -lahR dl work || true; fi
-            echo "::endgroup::"
-            exit 1
-          fi
-
-          echo "Collecting ${#outs[@]} firmware file(s) into firmware/:"
-          for f in "${outs[@]}"; do
-            cp -f "$f" "firmware/$(basename "$f")"
-          done
-
-          echo "::group::Firmware dir contents"
-          ls -lah firmware
-          echo "::endgroup::"
-
-      - name: Compute names for this bundle
+      - name: Compute artifact base names
         id: names
         shell: bash
         run: |
@@ -100,47 +85,27 @@ jobs:
             echo "left=${L}_trio_split_left"     >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Resolve extensions (.uf2 preferred; fall back to .bin)
+      - name: Resolve extensions (.uf2 preferred; .bin fallback)
         id: ext
         shell: bash
         run: |
           set -euo pipefail
-          choose_ext () {
-            local base="$1"
-            if [[ -f "firmware/${base}.uf2" ]]; then
-              echo "uf2"
-            elif [[ -f "firmware/${base}.bin" ]]; then
-              echo "bin"
-            else
-              echo ""
-            fi
-          }
-
-          c_ext="$(choose_ext "${{ steps.names.outputs.central }}")"
-          r_ext="$(choose_ext "${{ steps.names.outputs.right }}")"
-          x_ext="$(choose_ext "${{ steps.names.outputs.reset }}")"
-          l_ext=""
+          ext () { [[ -f "firmware/$1.uf2" ]] && echo uf2 || { [[ -f "firmware/$1.bin" ]] && echo bin || echo ""; }; }
+          echo "central_ext=$(ext '${{ steps.names.outputs.central }}')" >> "$GITHUB_OUTPUT"
+          echo "right_ext=$(ext   '${{ steps.names.outputs.right }}')"   >> "$GITHUB_OUTPUT"
+          echo "reset_ext=$(ext   '${{ steps.names.outputs.reset }}')"   >> "$GITHUB_OUTPUT"
           if [[ -n "${{ steps.names.outputs.left }}" ]]; then
-            l_ext="$(choose_ext "${{ steps.names.outputs.left }}")"
+            echo "left_ext=$(ext '${{ steps.names.outputs.left }}')"     >> "$GITHUB_OUTPUT"
+          else
+            echo "left_ext=" >> "$GITHUB_OUTPUT"
           fi
 
-          echo "central_ext=$c_ext" >> "$GITHUB_OUTPUT"
-          echo "right_ext=$r_ext"   >> "$GITHUB_OUTPUT"
-          echo "reset_ext=$x_ext"   >> "$GITHUB_OUTPUT"
-          echo "left_ext=$l_ext"    >> "$GITHUB_OUTPUT"
-
-      - name: Verify required firmware files exist
+      - name: Verify expected files exist
         shell: bash
         run: |
           set -euo pipefail
           miss=0
-          check () {
-            local base="$1" ext="$2"
-            if [[ -z "$ext" ]] || [[ ! -f "firmware/${base}.${ext}" ]]; then
-              echo "Missing firmware/${base}.${ext:-<none>}"
-              miss=1
-            fi
-          }
+          check () { local base="$1" ext="$2"; [[ -n "$ext" && -f "firmware/${base}.${ext}" ]] || { echo "Missing ${base}.${ext:-<none>}"; miss=1; }; }
           check "${{ steps.names.outputs.central }}" "${{ steps.ext.outputs.central_ext }}"
           check "${{ steps.names.outputs.right }}"   "${{ steps.ext.outputs.right_ext }}"
           check "${{ steps.names.outputs.reset }}"   "${{ steps.ext.outputs.reset_ext }}"
@@ -149,47 +114,143 @@ jobs:
           fi
           [[ $miss -eq 0 ]]
 
-      - name: Stage files with normalized names (root-level)
+      - name: Stage & zip per matrix (include tag in UF2/BIN names)
         shell: bash
+        env:
+          TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
-          rm -rf stage && mkdir -p stage
-          L="${{ matrix.layout }}"
-          S="${{ matrix.split }}"
+          L="${{ matrix.layout }}"; S="${{ matrix.split }}"
           C_EXT="${{ steps.ext.outputs.central_ext }}"
           R_EXT="${{ steps.ext.outputs.right_ext }}"
           X_EXT="${{ steps.ext.outputs.reset_ext }}"
           L_EXT="${{ steps.ext.outputs.left_ext }}"
+          rm -rf stage && mkdir -p stage
 
-          # Central (duo=left; trio=central)
+          # Central (duo=..._split_left ; trio=..._split_central) — add _<tag> before extension
           cp "firmware/${{ steps.names.outputs.central }}.${C_EXT}" \
-             "stage/${{ steps.names.outputs.central }}.${C_EXT}"
+             "stage/${{ steps.names.outputs.central }}_${TAG}.${C_EXT}"
 
-          # Left peripheral only for trio
+          # Trio left peripheral (if any) — add tag
           if [[ -n "${{ steps.names.outputs.left }}" ]]; then
             cp "firmware/${{ steps.names.outputs.left }}.${L_EXT}" \
-               "stage/${{ steps.names.outputs.left }}.${L_EXT}"
+               "stage/${{ steps.names.outputs.left }}_${TAG}.${L_EXT}"
           fi
 
-          # Right peripheral: rename to match the requested pattern
-          #   <layout>_<split>_split_right.<ext>
+          # Right peripheral — rename from any_right_peripheral -> <layout>_<split>_split_right_<tag>.<ext>
           cp "firmware/${{ steps.names.outputs.right }}.${R_EXT}" \
-             "stage/${L}_${S}_split_right.${R_EXT}"
+             "stage/${L}_${S}_split_right_${TAG}.${R_EXT}"
 
-          # Reset (keep as _reset.<ext>)
+          # Reset — include tag as well
           cp "firmware/${{ steps.names.outputs.reset }}.${X_EXT}" \
-             "stage/_reset.${X_EXT}"
+             "stage/_reset_${TAG}.${X_EXT}"
 
-          echo "::group::Staged files (will be at root of downloaded zip)"
+          echo "Staged files:"
           ls -lah stage
-          echo "::endgroup::"
 
-      # IMPORTANT: upload the files themselves (not our own zip)
-      # GitHub will create a single zip per artifact WITH THESE FILES AT ROOT.
-      - name: Upload bundle (files at root)
+          # Create tagged zip asset: <layout>_<split>_<tag>.zip with root-level files
+          OUT="dist/${L}_${S}_${TAG}.zip"
+          mkdir -p dist
+          ( cd stage && zip -q -j "../${OUT}" * )
+          echo "Wrote ${OUT}"
+          ls -lah dist
+
+      - name: Upload CI artifact (tagged)
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.layout }}_${{ matrix.split }}
-          path: stage/*
-          if-no-files-found: error
+          name: zips_${{ inputs.tag }}_${{ matrix.layout }}_${{ matrix.split }}
+          path: dist/*.zip
+
+  # 3) Publish: create/update release and update README links to the new tag
+  publish:
+    runs-on: ubuntu-latest
+    needs: [package]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download packaged zips
+        uses: actions/download-artifact@v4
+        with:
+          pattern: zips_${{ inputs.tag }}_*
+          path: dist
+          merge-multiple: true
+
+      - name: Create or update release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag }}
+          TITLE: ${{ inputs.title }}
+          PRERELEASE: ${{ inputs.prerelease }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --title "${TITLE:-Firmware} $TAG" \
+              --notes "Automated firmware build for $TAG" \
+              $([[ "$PRERELEASE" == "true" ]] && echo "--prerelease")
+          fi
+          gh release upload "$TAG" dist/*.zip --clobber
+
+      - name: Regenerate README firmware links
+        env:
+          TAG: ${{ inputs.tag }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gen() {
+            echo "## Downloads"
+            echo
+            echo "<!-- FIRMWARE-LINKS:START - Do not edit below, this section is managed by CI -->"
+            echo
+            group() {
+              local L="$1"
+              local LUP="$(tr '[:lower:]' '[:upper:]' <<< ${L:0:1})${L:1}"
+              echo "- ${LUP}"
+              for S in duo trio; do
+                local FILE="${L}_${S}_${TAG}.zip"
+                if [[ -f "dist/$FILE" ]]; then
+                  echo "  - [${S^}](https://github.com/${REPO}/releases/download/${TAG}/${FILE})"
+                fi
+              done
+            }
+            group qwerty
+            group colemak
+            group dvorak
+            echo
+            echo "<!-- FIRMWARE-LINKS:END -->"
+          }
+
+          NEW="$(gen)"
+
+          # Replace block between markers
+          awk -v RS= -v ORS= '
+            BEGIN{
+              start="<!-- FIRMWARE-LINKS:START";
+              end="<!-- FIRMWARE-LINKS:END -->"
+            }
+            {
+              block="'"$NEW"'"
+              if ($0 ~ start && $0 ~ end) {
+                sub(start "[\\s\\S]*" end, block, $0)
+              }
+              print
+            }' README.md > README.tmp
+
+          mv README.tmp README.md
+
+      - name: Commit README update
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet -- README.md; then
+            git add README.md
+            git commit -m "docs: update firmware download links for ${{ inputs.tag }}"
+            git push
+          else
+            echo "README already up to date."
+          fi
 
