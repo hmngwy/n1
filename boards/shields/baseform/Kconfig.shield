@@ -1,0 +1,11 @@
+config SHIELD_BASEFORM_TRIO_BASE_CENTRAL
+    def_bool $(shields_list_contains,baseform_trio_base_central)
+
+config SHIELD_BASEFORM_TRIO_LEFT_PERIPHERAL
+    def_bool $(shields_list_contains,baseform_trio_left_peripheral)
+
+config SHIELD_BASEFORM_DUO_LEFT_CENTRAL
+    def_bool $(shields_list_contains,baseform_duo_left_central)
+
+config SHIELD_BASEFORM_ANY_RIGHT_PERIPHERAL
+    def_bool $(shields_list_contains,baseform_any_right_peripheral)

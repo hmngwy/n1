@@ -4,8 +4,6 @@ manifest:
       url-base: https://github.com/zmkfirmware
     # Additional modules containing boards/shields/custom code can be listed here as well
     # See https://docs.zephyrproject.org/3.2.0/develop/west/manifest.html#projects
-    - name: caksoylar  
-      url-base: https://github.com/caksoylar
     - name: englmaxi
       url-base: https://github.com/englmaxi
   projects:
@@ -13,9 +11,6 @@ manifest:
       remote: zmkfirmware
       revision: main
       import: app/west.yml
-    - name: zmk-rgbled-widget
-      remote: caksoylar
-      revision: main
     - name: zmk-dongle-display
       remote: englmaxi
       revision: main
