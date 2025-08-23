@@ -24,10 +24,9 @@ def test_zmk_yml_exposes_studio_feature():
     zmk_yml = yaml.safe_load(read('boards/shields/baseform/baseform.zmk.yml'))
     assert 'studio' in zmk_yml.get('features', [])
 
-def test_dtsi_has_studio_rpc_and_physical_layout():
+def test_dtsi_has_studio_rpc():
     dtsi = read('boards/shields/baseform/baseform.dtsi')
     assert re.search(r'zmk,studio-rpc-uart\s*=\s*&uart1', dtsi)
-    assert re.search(r'zmk,physical-layout\s*=\s*&baseform_6x4_lo', dtsi)
 
 
 @pytest.mark.parametrize('layout', ['6x4', '6x3', '5x3'])

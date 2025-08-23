@@ -37,11 +37,13 @@ def test_kconfig_has_keymap_default():
     )
 
 
-def test_kconfig_sets_split_role_central():
-    assert re.search(
-        r'config\s+ZMK_SPLIT_ROLE_CENTRAL\s*\n\s*bool\s*\n\s*default\s+y',
-        KCONFIG,
+def test_kconfig_sets_split_role_central_under_central_shields():
+    pattern = (
+        r'if\s+SHIELD_BASEFORM_TRIO_BASE_CENTRAL\s*\|\|\s*SHIELD_BASEFORM_DUO_LEFT_CENTRAL.*?'
+        r'config\s+ZMK_SPLIT_ROLE_CENTRAL\s*\n\s*bool\s*\n\s*default\s+y.*?'
+        r'endif'
     )
+    assert re.search(pattern, KCONFIG, re.S)
 
 
 def test_kconfig_sets_split_default_y_for_halves():
