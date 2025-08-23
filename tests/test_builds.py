@@ -44,6 +44,10 @@ def test_trio_peripheral_build_exists(layout):
     ), f"missing trio peripheral build for {layout}"
 
 
+def test_any_right_peripheral_build_exists():
+    assert _has_build(lambda b: b.get('shield') == 'baseform_any_right_peripheral'), "missing right peripheral build"
+
+
 def test_only_central_builds_use_studio_snippet():
     for b in _builds():
         shield = b.get('shield', '')
