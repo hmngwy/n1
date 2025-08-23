@@ -42,21 +42,55 @@ def test_kconfig_has_keymap_default():
     )
 
 
-def test_kconfig_sets_split_role_central_under_central_shields():
+def test_kconfig_sets_split_role_central_for_trio_base_central():
     pattern = (
-        r'if\s+SHIELD_BASEFORM_TRIO_BASE_CENTRAL\s*\|\|\s*SHIELD_BASEFORM_DUO_LEFT_CENTRAL.*?'
+        r'if\s+.*SHIELD_BASEFORM_TRIO_BASE_CENTRAL.*?'
         r'config\s+ZMK_SPLIT_ROLE_CENTRAL\s+bool\s+default\s+y.*?'
         r'endif'
     )
     assert contains(pattern, KCONFIG)
 
 
-def test_kconfig_sets_split_default_y_for_halves():
-    split_pattern = (
-        r'if\s+SHIELD_BASEFORM_TRIO_BASE_CENTRAL.*'
-        r'SHIELD_BASEFORM_TRIO_LEFT_PERIPHERAL.*'
-        r'SHIELD_BASEFORM_DUO_LEFT_CENTRAL.*'
-        r'SHIELD_BASEFORM_ANY_RIGHT_PERIPHERAL.*?'
-        r'config\s+ZMK_SPLIT\s+default\s+y'
+def test_kconfig_sets_split_role_central_for_duo_left_central():
+    pattern = (
+        r'if\s+.*SHIELD_BASEFORM_DUO_LEFT_CENTRAL.*?'
+        r'config\s+ZMK_SPLIT_ROLE_CENTRAL\s+bool\s+default\s+y.*?'
+        r'endif'
     )
-    assert contains(split_pattern, KCONFIG)
+    assert contains(pattern, KCONFIG)
+
+
+def test_kconfig_sets_split_default_y_for_trio_base_central():
+    pattern = (
+        r'if\s+.*SHIELD_BASEFORM_TRIO_BASE_CENTRAL.*?'
+        r'config\s+ZMK_SPLIT\s+default\s+y.*?'
+        r'endif'
+    )
+    assert contains(pattern, KCONFIG)
+
+
+def test_kconfig_sets_split_default_y_for_trio_left_peripheral():
+    pattern = (
+        r'if\s+.*SHIELD_BASEFORM_TRIO_LEFT_PERIPHERAL.*?'
+        r'config\s+ZMK_SPLIT\s+default\s+y.*?'
+        r'endif'
+    )
+    assert contains(pattern, KCONFIG)
+
+
+def test_kconfig_sets_split_default_y_for_duo_left_central():
+    pattern = (
+        r'if\s+.*SHIELD_BASEFORM_DUO_LEFT_CENTRAL.*?'
+        r'config\s+ZMK_SPLIT\s+default\s+y.*?'
+        r'endif'
+    )
+    assert contains(pattern, KCONFIG)
+
+
+def test_kconfig_sets_split_default_y_for_any_right_peripheral():
+    pattern = (
+        r'if\s+.*SHIELD_BASEFORM_ANY_RIGHT_PERIPHERAL.*?'
+        r'config\s+ZMK_SPLIT\s+default\s+y.*?'
+        r'endif'
+    )
+    assert contains(pattern, KCONFIG)
